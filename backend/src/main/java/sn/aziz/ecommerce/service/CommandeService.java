@@ -10,6 +10,7 @@ public interface CommandeService {
     CommandeDTO confirmerPaiement(String email, Long commandeId);
     CommandeDTO confirmerPaiementMarchand(ModePaiement modePaiement, String referencePaiement);
     CommandeDTO modifierStatutLivraison(Long commandeId, StatutCommande statut);
+    List<CommandeDTO> toutesLesCommandes();
     List<CommandeDTO> mesCommandes(String email);
     CommandeDTO obtenir(String email, Long commandeId);
 

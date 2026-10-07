@@ -1,0 +1,16 @@
+<header class="site-header">
+  <a class="brand" routerLink="/">Sunu<span>Market</span></a>
+  <nav aria-label="Navigation principale">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Boutique</a>
+    @if (utilisateur$ | async; as utilisateur) { <a routerLink="/commandes" routerLinkActive="active">Mes commandes</a>@if(utilisateur.role === 'ADMIN' || utilisateur.role === 'SUPER_ADMIN'){<a routerLink="/admin" routerLinkActive="active">Administration</a>} }
+  </nav>
+  <div class="header-actions">
+    <a class="cart-link" routerLink="/panier" aria-label="Voir le panier">Panier <b>{{ nombreArticles() }}</b></a>
+    @if (utilisateur$ | async; as utilisateur) {
+      <span class="user-name">Bonjour, {{ utilisateur.prenom }}</span>
+      <button type="button" class="link-button" (click)="deconnecter()">Déconnexion</button>
+    } @else {
+      <a routerLink="/connexion">Connexion</a><a class="button small" routerLink="/inscription">Créer un compte</a>
+    }
+  </div>
+</header>

@@ -112,6 +112,12 @@ public class CommandeServiceImpl implements CommandeService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<CommandeDTO> toutesLesCommandes() {
+        return commandeRepository.findAll().stream().map(this::toDTO).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public CommandeDTO obtenir(String email, Long commandeId) { return toDTO(commandeUtilisateur(email, commandeId)); }
 
     @Override

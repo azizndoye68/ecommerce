@@ -1,8 +1,8 @@
 package sn.aziz.ecommerce.service;
 
 import sn.aziz.ecommerce.dto.ProduitDTO;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ProduitService {
 
@@ -10,11 +10,11 @@ public interface ProduitService {
 
     ProduitDTO obtenirParId(Long id);
 
-    List<ProduitDTO> obtenirTous();
+    Page<ProduitDTO> obtenirTous(Pageable pageable);
 
-    List<ProduitDTO> obtenirParCategorie(Long categorieId);
+    Page<ProduitDTO> obtenirParCategorie(Long categorieId, Pageable pageable);
 
-    List<ProduitDTO> rechercherParNom(String nom);
+    Page<ProduitDTO> rechercherParNom(String nom, Pageable pageable);
 
     ProduitDTO modifier(Long id, ProduitDTO produitDTO);
 

@@ -4,11 +4,12 @@ import jakarta.validation.Valid;
 import sn.aziz.ecommerce.dto.ProduitDTO;
 import sn.aziz.ecommerce.service.ProduitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/produits")
@@ -29,18 +30,23 @@ public class ProduitController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProduitDTO>> obtenirTous() {
-        return ResponseEntity.ok(produitService.obtenirTous());
+    public ResponseEntity<Page<ProduitDTO>> obtenirTous(
+            @PageableDefault(size = 20, sort = "nom") Pageable pageable) {
+        return ResponseEntity.ok(produitService.obtenirTous(pageable));
     }
 
     @GetMapping("/categorie/{categorieId}")
-    public ResponseEntity<List<ProduitDTO>> obtenirParCategorie(@PathVariable Long categorieId) {
-        return ResponseEntity.ok(produitService.obtenirParCategorie(categorieId));
+    public ResponseEntity<Page<ProduitDTO>> obtenirParCategorie(
+            @PathVariable Long categorieId,
+            @PageableDefault(size = 20, sort = "nom") Pageable pageable) {
+        return ResponseEntity.ok(produitService.obtenirParCategorie(categorieId, pageable));
     }
 
     @GetMapping("/recherche")
-    public ResponseEntity<List<ProduitDTO>> rechercher(@RequestParam String nom) {
-        return ResponseEntity.ok(produitService.rechercherParNom(nom));
+    public ResponseEntity<Page<ProduitDTO>> rechercher(
+            @RequestParam String nom,
+            @PageableDefault(size = 20, sort = "nom") Pageable pageable) {
+        return ResponseEntity.ok(produitService.rechercherParNom(nom, pageable));
     }
 
     @PutMapping("/{id}")

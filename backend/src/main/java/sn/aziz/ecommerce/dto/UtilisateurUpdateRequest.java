@@ -15,6 +15,6 @@ public class UtilisateurUpdateRequest {
     private String telephone;
     private String adresse;
 
-    @Size(min = 6, message = "Le mot de passe doit contenir au moins 12 caractères")
+    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères")
     private String motDePasse;
 }

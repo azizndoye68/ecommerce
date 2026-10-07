@@ -48,8 +48,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
         } catch (JwtException | IllegalArgumentException ex) {
+            System.out.println("ERREUR JWT : " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"message\":\"Jeton invalide ou expiré\"}");
             return;
         }

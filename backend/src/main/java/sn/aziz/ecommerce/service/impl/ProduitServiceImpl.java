@@ -9,10 +9,9 @@ import sn.aziz.ecommerce.repository.CategorieRepository;
 import sn.aziz.ecommerce.repository.ProduitRepository;
 import sn.aziz.ecommerce.service.ProduitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,24 +40,18 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
     @Override
-    public List<ProduitDTO> obtenirTous() {
-        return produitRepository.findAll().stream()
-                .map(produitMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ProduitDTO> obtenirTous(Pageable pageable) {
+        return produitRepository.findAll(pageable).map(produitMapper::toDTO);
     }
 
     @Override
-    public List<ProduitDTO> obtenirParCategorie(Long categorieId) {
-        return produitRepository.findByCategorieId(categorieId).stream()
-                .map(produitMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ProduitDTO> obtenirParCategorie(Long categorieId, Pageable pageable) {
+        return produitRepository.findByCategorieId(categorieId, pageable).map(produitMapper::toDTO);
     }
 
     @Override
-    public List<ProduitDTO> rechercherParNom(String nom) {
-        return produitRepository.findByNomContainingIgnoreCase(nom).stream()
-                .map(produitMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<ProduitDTO> rechercherParNom(String nom, Pageable pageable) {
+        return produitRepository.findByNomContainingIgnoreCase(nom, pageable).map(produitMapper::toDTO);
     }
 
     @Override
