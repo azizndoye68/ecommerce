@@ -1,6 +1,6 @@
 import { LignePanier } from './panier.model';
 
-export type ModePaiement = 'WAVE' | 'ORANGE_MONEY';
+export type ModePaiement = 'WAVE' | 'ORANGE_MONEY' | 'SIMULE';
 export type StatutCommande = 'EN_ATTENTE_PAIEMENT' | 'PAYEE' | 'EN_PREPARATION' | 'EXPEDIEE' | 'LIVREE' | 'ANNULEE';
 
 export interface AdresseLivraison {

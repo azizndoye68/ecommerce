@@ -1,6 +1,7 @@
 package sn.aziz.ecommerce.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.aziz.ecommerce.dto.*;
@@ -14,6 +15,7 @@ import sn.aziz.ecommerce.service.PaiementInitialisation;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +26,13 @@ public class CommandeServiceImpl implements CommandeService {
     private final UtilisateurRepository utilisateurRepository;
     private final WaveService waveService;
     private final OrangeMoneyService orangeMoneyService;
+    @Value("${paiement.simulation-active:false}")
+    private boolean simulationActive;
 
     @Override
     @Transactional
     public CommandeDTO creer(String email, CreerCommandeRequest request) {
+        verifierModePaiement(request.getModePaiement());
         Utilisateur utilisateur = utilisateur(email);
         Panier panier = panierRepository.findByUtilisateurId(utilisateur.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Votre panier est vide"));
@@ -67,6 +72,14 @@ public class CommandeServiceImpl implements CommandeService {
     @Transactional
     public CommandeDTO confirmerPaiement(String email, Long commandeId) {
         Commande commande = commandeUtilisateur(email, commandeId);
+        if (commande.getModePaiement() == ModePaiement.SIMULE) {
+            verifierSimulationActive();
+            if (commande.getStatut() != StatutCommande.EN_ATTENTE_PAIEMENT)
+                throw new IllegalArgumentException("Cette commande ne peut plus être payée");
+            commande.setStatut(StatutCommande.PAYEE);
+            commande.setUrlPaiement(null);
+            return toDTO(commandeRepository.save(commande));
+        }
         if (commande.getModePaiement() == ModePaiement.ORANGE_MONEY)
             throw new IllegalArgumentException("La confirmation Orange Money doit provenir du webhook marchand sécurisé");
         return confirmer(commande);
@@ -156,7 +169,16 @@ public class CommandeServiceImpl implements CommandeService {
         return switch (commande.getModePaiement()) {
             case WAVE -> waveService.creerSession(commande.getId(), commande.getTotal());
             case ORANGE_MONEY -> orangeMoneyService.initialiser(commande.getId(), commande.getTotal());
+            case SIMULE -> new PaiementInitialisation("SIM-" + UUID.randomUUID(), null);
         };
+    }
+
+    private void verifierModePaiement(ModePaiement modePaiement) {
+        if (modePaiement == ModePaiement.SIMULE) verifierSimulationActive();
+    }
+
+    private void verifierSimulationActive() {
+        if (!simulationActive) throw new IllegalArgumentException("Le paiement simulé est désactivé sur cet environnement");
     }
 
     private boolean transitionLivraisonAutorisee(StatutCommande actuel, StatutCommande cible) {
