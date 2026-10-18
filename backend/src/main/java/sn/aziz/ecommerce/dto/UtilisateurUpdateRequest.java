@@ -1,6 +1,5 @@
 package sn.aziz.ecommerce.dto;
 
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +14,4 @@ public class UtilisateurUpdateRequest {
     private String telephone;
     private String adresse;
 
-    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères")
-    private String motDePasse;
 }

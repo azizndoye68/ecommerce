@@ -10,6 +10,7 @@ export const routes: Routes = [
   { path: 'panier', canActivate: [authGuard], loadComponent: () => import('./features/panier/panier').then((m) => m.PanierPage) },
   { path: 'commande', canActivate: [authGuard], loadComponent: () => import('./features/checkout/checkout').then((m) => m.Checkout) },
   { path: 'commandes', canActivate: [authGuard], loadComponent: () => import('./features/commandes/commandes').then((m) => m.Commandes) },
+  { path: 'profil', canActivate: [authGuard], loadComponent: () => import('./features/profil/profil').then((m) => m.Profil) },
   { path: 'admin', canActivate: [authGuard, roleGuard(['ADMIN', 'SUPER_ADMIN'])], loadComponent: () => import('./features/admin/admin').then((m) => m.AdminPage) },
   { path: '**', redirectTo: '' },
 ];

@@ -1,5 +1,6 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { AuthResponse, ConnexionRequest, InscriptionRequest } from '../../core/models/auth.model';
+import { Utilisateur } from '../../core/models/utilisateur.model';
 
 export const AuthActions = createActionGroup({
   source: 'Auth',
@@ -15,6 +16,7 @@ export const AuthActions = createActionGroup({
     'Deconnecter': emptyProps(),
     'Deconnecter Succes': emptyProps(),
 
-    'Restaurer Session': emptyProps()
+    'Restaurer Session': emptyProps(),
+    'Utilisateur Mis A Jour': props<{ utilisateur: Utilisateur }>()
   }
 });

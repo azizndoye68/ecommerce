@@ -11,6 +11,14 @@ export class AuthEffects {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  sauvegarderProfil$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.utilisateurMisAJour),
+      tap(({ utilisateur }) => localStorage.setItem('utilisateur', JSON.stringify(utilisateur))),
+    ),
+    { dispatch: false },
+  );
+
   connecter$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.connecter),

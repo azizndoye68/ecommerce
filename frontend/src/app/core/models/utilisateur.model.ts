@@ -4,4 +4,6 @@ export interface Utilisateur {
   nom: string;
   prenom: string;
   role: 'CLIENT' | 'ADMIN' | 'SUPER_ADMIN';
+  telephone?: string;
+  adresse?: string;
 }

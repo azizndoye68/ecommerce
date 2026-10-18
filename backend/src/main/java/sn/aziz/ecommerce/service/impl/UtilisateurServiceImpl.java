@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,9 +38,38 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public UtilisateurDTO obtenirMonProfil(String email) {
+        return utilisateurMapper.toDTO(trouverParEmail(email));
+    }
+
+    @Override
+    @Transactional
+    public UtilisateurDTO modifierMonProfil(String email, UtilisateurUpdateRequest request) {
+        Utilisateur utilisateur = trouverParEmail(email);
+        appliquerInformationsPersonnelles(utilisateur, request);
+        return utilisateurMapper.toDTO(utilisateurRepository.save(utilisateur));
+    }
+
+    @Override
+    @Transactional
+    public void changerMonMotDePasse(String email, String motDePasseActuel, String nouveauMotDePasse) {
+        Utilisateur utilisateur = trouverParEmail(email);
+        if (!passwordEncoder.matches(motDePasseActuel, utilisateur.getMotDePasse())) {
+            throw new IllegalArgumentException("Le mot de passe actuel est incorrect");
+        }
+        utilisateur.setMotDePasse(passwordEncoder.encode(nouveauMotDePasse));
+        utilisateurRepository.save(utilisateur);
+    }
+
+    @Override
     public UtilisateurDTO modifier(Long id, UtilisateurUpdateRequest request) {
         Utilisateur utilisateur = trouverParId(id);
+        appliquerInformationsPersonnelles(utilisateur, request);
+        return utilisateurMapper.toDTO(utilisateurRepository.save(utilisateur));
+    }
 
+    private void appliquerInformationsPersonnelles(Utilisateur utilisateur, UtilisateurUpdateRequest request) {
         if (StringUtils.hasText(request.getNom())) {
             utilisateur.setNom(request.getNom());
         }
@@ -52,11 +82,6 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         if (StringUtils.hasText(request.getAdresse())) {
             utilisateur.setAdresse(request.getAdresse());
         }
-        if (StringUtils.hasText(request.getMotDePasse())) {
-            utilisateur.setMotDePasse(passwordEncoder.encode(request.getMotDePasse()));
-        }
-
-        return utilisateurMapper.toDTO(utilisateurRepository.save(utilisateur));
     }
 
     @Override
@@ -70,5 +95,10 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     private Utilisateur trouverParId(Long id) {
         return utilisateurRepository.findById(id)
                 .orElseThrow(() -> new RessourceNonTrouveeException("Utilisateur introuvable avec l'id : " + id));
+    }
+
+    private Utilisateur trouverParEmail(String email) {
+        return utilisateurRepository.findByEmail(email)
+                .orElseThrow(() -> new RessourceNonTrouveeException("Utilisateur introuvable"));
     }
 }

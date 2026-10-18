@@ -48,6 +48,8 @@ export const authReducer = createReducer(
 
   on(AuthActions.deconnecterSucces, () => initialState),
 
+  on(AuthActions.utilisateurMisAJour, (state, { utilisateur }) => ({ ...state, utilisateur })),
+
   on(AuthActions.restaurerSession, (state) => {
     const token = localStorage.getItem('token');
     const refreshToken = localStorage.getItem('refreshToken');

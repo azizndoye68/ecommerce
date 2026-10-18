@@ -11,6 +11,12 @@ public interface UtilisateurService {
 
     UtilisateurDTO obtenirParId(Long id);
 
+    UtilisateurDTO obtenirMonProfil(String email);
+
+    UtilisateurDTO modifierMonProfil(String email, UtilisateurUpdateRequest request);
+
+    void changerMonMotDePasse(String email, String motDePasseActuel, String nouveauMotDePasse);
+
     UtilisateurDTO modifier(Long id, UtilisateurUpdateRequest request);
 
     void supprimer(Long id);
