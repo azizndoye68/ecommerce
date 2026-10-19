@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://votre-domaine-production.com/api',
+  apiUrl: 'https://ecommerce-kzhi.onrender.com/api',
   paiementSimule: false
 };
