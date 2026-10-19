@@ -1,1 +1,48 @@
-<section class="page"><h1 class="page-title">Mes commandes</h1>@if(erreur()){<p class="alert">{{ erreur() }}</p>}@else if(chargement()){<p class="muted">Chargement des commandes…</p>}@else{@for(commande of commandes();track commande.id){<article class="order"><header><div><strong>Commande #{{ commande.id }}</strong><span>Passée le {{ commande.creeLe | date:'dd/MM/yyyy à HH:mm' }}</span></div><span class="status" [class.paid]="commande.statut === 'PAYEE'" [class.cancelled]="commande.statut === 'ANNULEE'">{{ commande.statut | titlecase }}</span></header><div class="order-body"><div>@for(ligne of commande.lignes;track ligne.produitId){<p>{{ ligne.quantite }} × {{ ligne.nomProduit }} <strong>{{ ligne.sousTotal | currency:'XOF':'symbol-narrow':'1.0-0' }}</strong></p>}</div><div class="total">Total : {{ commande.total | currency:'XOF':'symbol-narrow':'1.0-0' }}</div></div>@if(commande.statut === 'EN_ATTENTE_PAIEMENT'){<footer>@if(commande.urlPaiement){<button class="button" (click)="payer(commande)">Payer maintenant</button>}<button class="button secondary" (click)="annuler(commande)">Annuler</button></footer>}</article>}@empty{<p class="muted">Vous n’avez pas encore passé de commande.</p>}}</section>
+<section class="page">
+  <h1 class="page-title">Mes commandes</h1>
+  @if (erreur()) {
+    <p class="alert">{{ erreur() }}</p>
+  } @else if (chargement()) {
+    <p class="muted">Chargement des commandes…</p>
+  } @else {
+    @for (commande of commandes(); track commande.id) {
+      <article class="order">
+        <header>
+          <div>
+            <strong>Commande #{{ commande.id }}</strong
+            ><span>Passée le {{ commande.creeLe | date: 'dd/MM/yyyy à HH:mm' }}</span>
+          </div>
+          <span
+            class="status"
+            [class.paid]="commande.statut === 'PAYEE'"
+            [class.cancelled]="commande.statut === 'ANNULEE'"
+            >{{ commande.statut | titlecase }}</span
+          >
+        </header>
+        <div class="order-body">
+          <div>
+            @for (ligne of commande.lignes; track ligne.produitId) {
+              <p>
+                {{ ligne.quantite }} × {{ ligne.nomProduit }}
+                <strong>{{ ligne.sousTotal | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</strong>
+              </p>
+            }
+          </div>
+          <div class="total">
+            Total : {{ commande.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}
+          </div>
+        </div>
+        @if (commande.statut === 'EN_ATTENTE_PAIEMENT') {
+          <footer>
+            @if (commande.urlPaiement) {
+              <button class="button" (click)="payer(commande)">Payer maintenant</button>
+            }
+            <button class="button secondary" (click)="annuler(commande)">Annuler</button>
+          </footer>
+        }
+      </article>
+    } @empty {
+      <p class="muted">Vous n’avez pas encore passé de commande.</p>
+    }
+  }
+</section>

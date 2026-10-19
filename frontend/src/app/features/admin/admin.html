@@ -1,5 +1,188 @@
-<section class="page"><p class="eyebrow">ESPACE SÉCURISÉ</p><h1 class="page-title">Administration</h1><div class="tabs"><button [class.active]="onglet==='produits'" (click)="ouvrir('produits')">Produits</button><button [class.active]="onglet==='categories'" (click)="ouvrir('categories')">Catégories</button><button [class.active]="onglet==='commandes'" (click)="ouvrir('commandes')">Commandes</button>@if(estSuperAdmin){<button [class.active]="onglet==='administrateurs'" (click)="ouvrir('administrateurs')">Administrateurs</button>}</div>@if(erreur()){<p class="alert">{{erreur()}}</p>}@if(succes()){<p class="success">{{succes()}}</p>}
-@if(onglet==='produits'){<div class="admin-grid"><form (ngSubmit)="enregistrerProduit()"><h2>{{editionProduitId ? 'Modifier le produit' : 'Nouveau produit'}}</h2><div class="field"><label>Nom</label><input [(ngModel)]="produit.nom" name="nom"></div><div class="field"><label>Description</label><textarea [(ngModel)]="produit.description" name="description"></textarea></div><div class="two"><div class="field"><label>Prix (XOF)</label><input type="number" min="1" [(ngModel)]="produit.prix" name="prix"></div><div class="field"><label>Stock</label><input type="number" min="0" [(ngModel)]="produit.quantiteStock" name="stock"></div></div><div class="field"><label>Image (URL)</label><input [(ngModel)]="produit.imageUrl" name="imageUrl"></div><div class="field"><label>Catégorie</label><select [(ngModel)]="produit.categorieId" name="categorieId"><option [ngValue]="undefined">Sans catégorie</option>@for(categorie of categories();track categorie.id){<option [ngValue]="categorie.id">{{categorie.nom}}</option>}</select></div><button class="button">Enregistrer</button></form><div class="table-card"><h2>Produits existants</h2><table><thead><tr><th>Produit</th><th>Prix</th><th>Stock</th><th></th></tr></thead><tbody>@for(produit of produits();track produit.id){<tr><td>{{produit.nom}}</td><td>{{produit.prix|currency:'XOF':'symbol-narrow':'1.0-0'}}</td><td>{{produit.quantiteStock}}</td><td><button (click)="editerProduit(produit)">Modifier</button><button class="danger" (click)="supprimerProduit(produit.id)">Supprimer</button></td></tr>}</tbody></table></div></div>}
-@if(onglet==='categories'){<div class="admin-grid"><form (ngSubmit)="enregistrerCategorie()"><h2>Nouvelle catégorie</h2><div class="field"><label>Nom</label><input [(ngModel)]="categorie.nom" name="categorieNom"></div><div class="field"><label>Description</label><textarea [(ngModel)]="categorie.description" name="categorieDescription"></textarea></div><button class="button">Créer</button></form><div class="table-card"><h2>Catégories</h2>@for(categorie of categories();track categorie.id){<div class="row"><div><strong>{{categorie.nom}}</strong><p>{{categorie.description}}</p></div><button class="danger" (click)="supprimerCategorie(categorie.id)">Supprimer</button></div>}</div></div>}
-@if(onglet==='commandes'){<div class="table-card"><h2>Toutes les commandes</h2><table><thead><tr><th>#</th><th>Client / livraison</th><th>Total</th><th>Statut</th></tr></thead><tbody>@for(commande of commandes();track commande.id){<tr><td>#{{commande.id}}<small>{{commande.creeLe|date:'dd/MM/yyyy'}}</small></td><td>{{commande.destinataireLivraison}}<small>{{commande.villeLivraison}}</small></td><td>{{commande.total|currency:'XOF':'symbol-narrow':'1.0-0'}}</td><td><select [ngModel]="commande.statut" (ngModelChange)="changerStatut(commande,$event)"><option value="EN_ATTENTE_PAIEMENT">En attente</option>@for(statut of statuts;track statut){<option [value]="statut">{{statut}}</option>}</select></td></tr>}</tbody></table></div>}
-@if(onglet==='administrateurs'&&estSuperAdmin){<div class="admin-grid"><form (ngSubmit)="creerAdministrateur()"><h2>Nouvel administrateur</h2><div class="two"><div class="field"><label>Nom</label><input [(ngModel)]="nouvelAdmin.nom" name="adminNom"></div><div class="field"><label>Prénom</label><input [(ngModel)]="nouvelAdmin.prenom" name="adminPrenom"></div></div><div class="field"><label>Email</label><input type="email" [(ngModel)]="nouvelAdmin.email" name="adminEmail"></div><div class="field"><label>Mot de passe</label><input type="password" [(ngModel)]="nouvelAdmin.motDePasse" name="adminPassword"></div><button class="button">Créer l’administrateur</button></form><div class="table-card"><h2>Administrateurs</h2>@for(admin of administrateurs();track admin.id){<div class="row"><div><strong>{{admin.prenom}} {{admin.nom}}</strong><p>{{admin.email}} · {{admin.role}}</p></div><button class="button secondary" (click)="changerStatutAdmin(admin,true)">Activer</button><button class="danger" (click)="changerStatutAdmin(admin,false)">Désactiver</button></div>}</div></div>}</section>
+<section class="page">
+  <p class="eyebrow">ESPACE SÉCURISÉ</p>
+  <h1 class="page-title">Administration</h1>
+  <div class="tabs">
+    <button [class.active]="onglet === 'produits'" (click)="ouvrir('produits')">Produits</button
+    ><button [class.active]="onglet === 'categories'" (click)="ouvrir('categories')">
+      Catégories</button
+    ><button [class.active]="onglet === 'commandes'" (click)="ouvrir('commandes')">
+      Commandes
+    </button>
+    @if (estSuperAdmin) {
+      <button [class.active]="onglet === 'administrateurs'" (click)="ouvrir('administrateurs')">
+        Administrateurs
+      </button>
+    }
+  </div>
+  @if (erreur()) {
+    <p class="alert">{{ erreur() }}</p>
+  }
+  @if (succes()) {
+    <p class="success">{{ succes() }}</p>
+  }
+  @if (onglet === 'produits') {
+    <div class="admin-grid">
+      <form (ngSubmit)="enregistrerProduit()">
+        <h2>{{ editionProduitId ? 'Modifier le produit' : 'Nouveau produit' }}</h2>
+        <div class="field"><label>Nom</label><input [(ngModel)]="produit.nom" name="nom" /></div>
+        <div class="field">
+          <label>Description</label
+          ><textarea [(ngModel)]="produit.description" name="description"></textarea>
+        </div>
+        <div class="two">
+          <div class="field">
+            <label>Prix (XOF)</label
+            ><input type="number" min="1" [(ngModel)]="produit.prix" name="prix" />
+          </div>
+          <div class="field">
+            <label>Stock</label
+            ><input type="number" min="0" [(ngModel)]="produit.quantiteStock" name="stock" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Image (URL)</label><input [(ngModel)]="produit.imageUrl" name="imageUrl" />
+        </div>
+        <div class="field">
+          <label>Catégorie</label
+          ><select [(ngModel)]="produit.categorieId" name="categorieId">
+            <option [ngValue]="undefined">Sans catégorie</option>
+            @for (categorie of categories(); track categorie.id) {
+              <option [ngValue]="categorie.id">{{ categorie.nom }}</option>
+            }
+          </select>
+        </div>
+        <button class="button">Enregistrer</button>
+      </form>
+      <div class="table-card">
+        <h2>Produits existants</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Prix</th>
+              <th>Stock</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (produit of produits(); track produit.id) {
+              <tr>
+                <td>{{ produit.nom }}</td>
+                <td>{{ produit.prix | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td>{{ produit.quantiteStock }}</td>
+                <td>
+                  <button (click)="editerProduit(produit)">Modifier</button
+                  ><button class="danger" (click)="supprimerProduit(produit.id)">Supprimer</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+  @if (onglet === 'categories') {
+    <div class="admin-grid">
+      <form (ngSubmit)="enregistrerCategorie()">
+        <h2>Nouvelle catégorie</h2>
+        <div class="field">
+          <label>Nom</label><input [(ngModel)]="categorie.nom" name="categorieNom" />
+        </div>
+        <div class="field">
+          <label>Description</label
+          ><textarea [(ngModel)]="categorie.description" name="categorieDescription"></textarea>
+        </div>
+        <button class="button">Créer</button>
+      </form>
+      <div class="table-card">
+        <h2>Catégories</h2>
+        @for (categorie of categories(); track categorie.id) {
+          <div class="row">
+            <div>
+              <strong>{{ categorie.nom }}</strong>
+              <p>{{ categorie.description }}</p>
+            </div>
+            <button class="danger" (click)="supprimerCategorie(categorie.id)">Supprimer</button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  @if (onglet === 'commandes') {
+    <div class="table-card">
+      <h2>Toutes les commandes</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Client / livraison</th>
+            <th>Total</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (commande of commandes(); track commande.id) {
+            <tr>
+              <td>
+                #{{ commande.id }}<small>{{ commande.creeLe | date: 'dd/MM/yyyy' }}</small>
+              </td>
+              <td>
+                {{ commande.destinataireLivraison }}<small>{{ commande.villeLivraison }}</small>
+              </td>
+              <td>{{ commande.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</td>
+              <td>
+                <select
+                  [ngModel]="commande.statut"
+                  (ngModelChange)="changerStatut(commande, $event)"
+                >
+                  <option value="EN_ATTENTE_PAIEMENT">En attente</option>
+                  @for (statut of statuts; track statut) {
+                    <option [value]="statut">{{ statut }}</option>
+                  }
+                </select>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (onglet === 'administrateurs' && estSuperAdmin) {
+    <div class="admin-grid">
+      <form (ngSubmit)="creerAdministrateur()">
+        <h2>Nouvel administrateur</h2>
+        <div class="two">
+          <div class="field">
+            <label>Nom</label><input [(ngModel)]="nouvelAdmin.nom" name="adminNom" />
+          </div>
+          <div class="field">
+            <label>Prénom</label><input [(ngModel)]="nouvelAdmin.prenom" name="adminPrenom" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Email</label
+          ><input type="email" [(ngModel)]="nouvelAdmin.email" name="adminEmail" />
+        </div>
+        <div class="field">
+          <label>Mot de passe</label
+          ><input type="password" [(ngModel)]="nouvelAdmin.motDePasse" name="adminPassword" />
+        </div>
+        <button class="button">Créer l’administrateur</button>
+      </form>
+      <div class="table-card">
+        <h2>Administrateurs</h2>
+        @for (admin of administrateurs(); track admin.id) {
+          <div class="row">
+            <div>
+              <strong>{{ admin.prenom }} {{ admin.nom }}</strong>
+              <p>{{ admin.email }} · {{ admin.role }}</p>
+            </div>
+            <button class="button secondary" (click)="changerStatutAdmin(admin, true)">
+              Activer</button
+            ><button class="danger" (click)="changerStatutAdmin(admin, false)">Désactiver</button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</section>

@@ -1,16 +1,41 @@
 <header class="site-header">
-  <a class="brand" routerLink="/" aria-label="SunuMarket, accueil"><span class="brand-mark" aria-hidden="true">S</span><span>Sunu<span class="brand-accent">Market</span></span></a>
+  <a class="brand" routerLink="/" aria-label="SunuMarket, accueil"
+    ><span class="brand-mark" aria-hidden="true">S</span
+    ><span>Sunu<span class="brand-accent">Market</span></span></a
+  >
   <nav aria-label="Navigation principale">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Boutique</a>
-    @if (utilisateur$ | async; as utilisateur) { <a routerLink="/commandes" routerLinkActive="active">Mes commandes</a><a routerLink="/profil" routerLinkActive="active">Mon profil</a>@if(utilisateur.role === 'ADMIN' || utilisateur.role === 'SUPER_ADMIN'){<a routerLink="/admin" routerLinkActive="active">Administration</a>} }
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+      >Boutique</a
+    >
+    @if (utilisateur$ | async; as utilisateur) {
+      <a routerLink="/commandes" routerLinkActive="active">Mes commandes</a
+      ><a routerLink="/profil" routerLinkActive="active">Mon profil</a>
+      @if (utilisateur.role === 'ADMIN' || utilisateur.role === 'SUPER_ADMIN') {
+        <a routerLink="/admin" routerLinkActive="active">Administration</a>
+      }
+    }
   </nav>
   <div class="header-actions">
-    <a class="cart-link" routerLink="/panier" aria-label="Voir le panier"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 1.9-1.4L21 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.2" fill="currentColor"/><circle cx="18" cy="20" r="1.2" fill="currentColor"/></svg> Panier <b>{{ nombreArticles() }}</b></a>
+    <a class="cart-link" routerLink="/panier" aria-label="Voir le panier"
+      ><svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 1.9-1.4L21 8H6"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <circle cx="10" cy="20" r="1.2" fill="currentColor" />
+        <circle cx="18" cy="20" r="1.2" fill="currentColor" />
+      </svg>
+      Panier <b>{{ nombreArticles() }}</b></a
+    >
     @if (utilisateur$ | async; as utilisateur) {
       <span class="user-name">Bonjour, {{ utilisateur.prenom }}</span>
       <button type="button" class="link-button" (click)="deconnecter()">Déconnexion</button>
     } @else {
-      <a routerLink="/connexion">Connexion</a><a class="button small" routerLink="/inscription">Créer un compte</a>
+      <a routerLink="/connexion">Connexion</a
+      ><a class="button small" routerLink="/inscription">Créer un compte</a>
     }
   </div>
 </header>

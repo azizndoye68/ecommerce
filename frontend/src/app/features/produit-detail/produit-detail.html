@@ -1,1 +1,38 @@
-<section class="page">@if(erreur()){<p class="alert">{{ erreur() }}</p>}@else if(produit();as produit){<a routerLink="/" class="back">← Retour au catalogue</a><div class="detail"><div class="visual">@if(produit.imageUrl){<img [src]="produit.imageUrl" [alt]="produit.nom">}@else{<span>Produit</span>}</div><div><p class="eyebrow">{{ produit.categorieNom || 'Catalogue' }}</p><h1 class="page-title">{{ produit.nom }}</h1><strong class="price">{{ produit.prix | currency:'XOF':'symbol-narrow':'1.0-0' }}</strong><p class="description">{{ produit.description || 'Aucune description disponible pour ce produit.' }}</p><p [class.out]="produit.quantiteStock === 0">{{ produit.quantiteStock > 0 ? produit.quantiteStock + ' unité(s) en stock' : 'Produit indisponible' }}</p><button class="button" [disabled]="produit.quantiteStock === 0" (click)="ajouter()">Ajouter au panier</button></div></div>}@else{<p class="muted">Chargement du produit…</p>}</section>
+<section class="page">
+  @if (erreur()) {
+    <p class="alert">{{ erreur() }}</p>
+  } @else if (produit(); as produit) {
+    <a routerLink="/" class="back">← Retour au catalogue</a>
+    <div class="detail">
+      <div class="visual">
+        @if (produit.imageUrl) {
+          <img [src]="produit.imageUrl" [alt]="produit.nom" />
+        } @else {
+          <span>Produit</span>
+        }
+      </div>
+      <div>
+        <p class="eyebrow">{{ produit.categorieNom || 'Catalogue' }}</p>
+        <h1 class="page-title">{{ produit.nom }}</h1>
+        <strong class="price">{{
+          produit.prix | currency: 'XOF' : 'symbol-narrow' : '1.0-0'
+        }}</strong>
+        <p class="description">
+          {{ produit.description || 'Aucune description disponible pour ce produit.' }}
+        </p>
+        <p [class.out]="produit.quantiteStock === 0">
+          {{
+            produit.quantiteStock > 0
+              ? produit.quantiteStock + ' unité(s) en stock'
+              : 'Produit indisponible'
+          }}
+        </p>
+        <button class="button" [disabled]="produit.quantiteStock === 0" (click)="ajouter()">
+          Ajouter au panier
+        </button>
+      </div>
+    </div>
+  } @else {
+    <p class="muted">Chargement du produit…</p>
+  }
+</section>

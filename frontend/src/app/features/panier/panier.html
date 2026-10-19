@@ -1,1 +1,51 @@
-<section class="page"><h1 class="page-title">Votre panier</h1>@if(erreur()){<p class="alert">{{ erreur() }}</p>}@else if(chargement()){<p class="muted">Chargement du panier…</p>}@else if(panierService.panier();as panier){@if(panier.lignes.length){<div class="cart-layout"><div class="lines">@for(ligne of panier.lignes;track ligne.produitId){<article class="line"><div class="thumb">@if(ligne.imageUrl){<img [src]="ligne.imageUrl" [alt]="ligne.nom">}@else{<span>Produit</span>}</div><div class="line-name"><h2>{{ ligne.nom }}</h2><span>{{ ligne.prixUnitaire | currency:'XOF':'symbol-narrow':'1.0-0' }}</span></div><div class="quantity"><button (click)="modifier(ligne.produitId,ligne.quantite-1)">−</button><span>{{ ligne.quantite }}</span><button (click)="modifier(ligne.produitId,ligne.quantite+1)">+</button></div><strong>{{ ligne.sousTotal | currency:'XOF':'symbol-narrow':'1.0-0' }}</strong><button class="remove" (click)="supprimer(ligne.produitId)">Retirer</button></article>}</div><aside><h2>Récapitulatif</h2><div><span>Total</span><strong>{{ panier.total | currency:'XOF':'symbol-narrow':'1.0-0' }}</strong></div><a class="button" routerLink="/commande">Passer la commande</a><a class="continue" routerLink="/">Continuer mes achats</a></aside></div>}@else{<div class="empty"><p>Votre panier est vide.</p><a class="button" routerLink="/">Voir le catalogue</a></div>}}</section>
+<section class="page">
+  <h1 class="page-title">Votre panier</h1>
+  @if (erreur()) {
+    <p class="alert">{{ erreur() }}</p>
+  } @else if (chargement()) {
+    <p class="muted">Chargement du panier…</p>
+  } @else if (panierService.panier(); as panier) {
+    @if (panier.lignes.length) {
+      <div class="cart-layout">
+        <div class="lines">
+          @for (ligne of panier.lignes; track ligne.produitId) {
+            <article class="line">
+              <div class="thumb">
+                @if (ligne.imageUrl) {
+                  <img [src]="ligne.imageUrl" [alt]="ligne.nom" />
+                } @else {
+                  <span>Produit</span>
+                }
+              </div>
+              <div class="line-name">
+                <h2>{{ ligne.nom }}</h2>
+                <span>{{ ligne.prixUnitaire | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</span>
+              </div>
+              <div class="quantity">
+                <button (click)="modifier(ligne.produitId, ligne.quantite - 1)">−</button
+                ><span>{{ ligne.quantite }}</span
+                ><button (click)="modifier(ligne.produitId, ligne.quantite + 1)">+</button>
+              </div>
+              <strong>{{ ligne.sousTotal | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</strong
+              ><button class="remove" (click)="supprimer(ligne.produitId)">Retirer</button>
+            </article>
+          }
+        </div>
+        <aside>
+          <h2>Récapitulatif</h2>
+          <div>
+            <span>Total</span
+            ><strong>{{ panier.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</strong>
+          </div>
+          <a class="button" routerLink="/commande">Passer la commande</a
+          ><a class="continue" routerLink="/">Continuer mes achats</a>
+        </aside>
+      </div>
+    } @else {
+      <div class="empty">
+        <p>Votre panier est vide.</p>
+        <a class="button" routerLink="/">Voir le catalogue</a>
+      </div>
+    }
+  }
+</section>
