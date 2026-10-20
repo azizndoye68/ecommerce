@@ -1,10 +1,10 @@
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { DatePipe, CurrencyPipe, TitleCasePipe } from '@angular/common';
+import { DatePipe, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { CommandeService } from '../../core/services/commande.service';
 import { Commande } from '../../core/models/commande.model';
 
-@Component({ selector: 'app-commandes', imports: [DatePipe, CurrencyPipe, TitleCasePipe], templateUrl: './commandes.html', styleUrl: './commandes.css' })
+@Component({ selector: 'app-commandes', imports: [DatePipe, CurrencyPipe], templateUrl: './commandes.html', styleUrl: './commandes.css' })
 export class Commandes implements OnInit {
   private readonly service = inject(CommandeService);
   private readonly route = inject(ActivatedRoute);
@@ -18,6 +18,21 @@ export class Commandes implements OnInit {
   readonly retourPaiement = signal<'success' | 'cancel' | null>(null);
   readonly messagePaiement = signal('');
   readonly commandeEnVerification = signal<number | null>(null);
+  readonly etapes = [
+    { statut: 'PAYEE', label: 'Paiement confirmé' },
+    { statut: 'EN_PREPARATION', label: 'Préparation' },
+    { statut: 'EXPEDIEE', label: 'Expédition' },
+    { statut: 'LIVREE', label: 'Livraison' },
+  ] as const;
+
+  libelleStatut(statut: string) {
+    return ({ EN_ATTENTE_PAIEMENT: 'En attente de paiement', PAYEE: 'Payée', EN_PREPARATION: 'En préparation', EXPEDIEE: 'Expédiée', LIVREE: 'Livrée', ANNULEE: 'Annulée' } as Record<string, string>)[statut] ?? statut;
+  }
+
+  progression(statut: string) {
+    if (statut === 'ANNULEE' || statut === 'EN_ATTENTE_PAIEMENT') return -1;
+    return this.etapes.findIndex((etape) => etape.statut === statut);
+  }
 
   constructor() {
     this.destroyRef.onDestroy(() => {

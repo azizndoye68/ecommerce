@@ -1,5 +1,7 @@
 <section class="page">
+  <p class="eyebrow">VOTRE ESPACE CLIENT</p>
   <h1 class="page-title">Mes commandes</h1>
+  <p class="intro">Retrouvez vos achats, suivez leur préparation et consultez les informations de livraison.</p>
   @if (messagePaiement()) {
     <p class="alert" role="status" aria-live="polite">{{ messagePaiement() }}</p>
   }
@@ -15,12 +17,7 @@
             <strong>Commande #{{ commande.id }}</strong
             ><span>Passée le {{ commande.creeLe | date: 'dd/MM/yyyy à HH:mm' }}</span>
           </div>
-          <span
-            class="status"
-            [class.paid]="commande.statut === 'PAYEE'"
-            [class.cancelled]="commande.statut === 'ANNULEE'"
-            >{{ commande.statut | titlecase }}</span
-          >
+          <span class="status" [class.status-success]="commande.statut === 'PAYEE' || commande.statut === 'EN_PREPARATION' || commande.statut === 'EXPEDIEE' || commande.statut === 'LIVREE'" [class.status-cancelled]="commande.statut === 'ANNULEE'">{{ libelleStatut(commande.statut) }}</span>
         </header>
         <div class="order-body">
           <div>
@@ -34,6 +31,19 @@
           <div class="total">
             Total : {{ commande.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}
           </div>
+        </div>
+        @if (commande.statut !== 'EN_ATTENTE_PAIEMENT' && commande.statut !== 'ANNULEE') {
+          <ol class="timeline" aria-label="Suivi de la commande">
+            @for (etape of etapes; track etape.statut; let i = $index) {
+              <li [class.done]="i <= progression(commande.statut)" [class.current]="i === progression(commande.statut)">
+                <span class="timeline-dot"></span><span>{{ etape.label }}</span>
+              </li>
+            }
+          </ol>
+        }
+        <div class="delivery">
+          <div><span>Livraison</span><strong>{{ commande.destinataireLivraison }} · {{ commande.telephoneLivraison }}</strong><small>{{ commande.adresseLivraison }}, {{ commande.villeLivraison }}, {{ commande.paysLivraison }}</small></div>
+          <div><span>Paiement</span><strong>{{ commande.modePaiement === 'ORANGE_MONEY' ? 'Orange Money' : commande.modePaiement === 'WAVE' ? 'Wave' : 'Paiement simulé' }}</strong></div>
         </div>
         @if (commande.statut === 'EN_ATTENTE_PAIEMENT') {
           <footer>

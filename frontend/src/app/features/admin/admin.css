@@ -46,6 +46,21 @@
   background: var(--paper);
   box-shadow: var(--shadow-card);
 }
+.orders-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; }
+.orders-heading h2 { margin-bottom: .25rem; }
+.orders-heading p { margin: 0; color: var(--muted); font-size: .84rem; }
+.refresh-button { border: 1px solid var(--line); border-radius: .65rem; padding: .6rem .8rem; background: white; color: var(--green-deep); font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+.order-summary { display: grid; grid-template-columns: repeat(5, minmax(110px, 1fr)); gap: .65rem; margin-bottom: 1.1rem; }
+.order-summary div { display: grid; gap: .2rem; border: 1px solid var(--line); border-radius: .75rem; padding: .7rem .8rem; background: #fbfcf9; }
+.order-summary strong { color: var(--green-deep); font: 800 1.15rem 'Manrope', sans-serif; }
+.order-summary span { color: var(--muted); font-size: .72rem; }
+.admin-status { display: inline-flex; border-radius: 999px; padding: .4rem .65rem; background: #fff3e7; color: #9c5c26; font-size: .72rem; font-weight: 800; white-space: nowrap; }
+.admin-status.is-done { background: #e8f5ec; color: #246b43; }
+.admin-status.is-cancelled { background: #fff0ee; color: #b54747; }
+.advance-button { border: 0; border-radius: .6rem; padding: .58rem .72rem; background: var(--green); color: white; font: inherit; font-size: .75rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.advance-button:hover { background: var(--green-deep); }
+.advance-button:disabled { opacity: .6; cursor: wait; }
+.no-action { color: var(--muted); font-size: .75rem; }
 .admin-grid form {
   display: grid;
   align-content: start;
@@ -191,4 +206,8 @@ small {
   th {
     padding: 0.7rem 0.5rem;
   }
+}
+@media (max-width: 760px) {
+  .order-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .orders-heading { align-items: flex-start; }
 }

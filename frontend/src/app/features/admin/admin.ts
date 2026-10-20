@@ -20,6 +20,7 @@ export class AdminPage implements OnInit {
   categorie = { nom: '', description: '' };
   nouvelAdmin: CreerAdministrateurRequest = { nom: '', prenom: '', email: '', motDePasse: '', telephone: '', adresse: '' };
   readonly statuts: StatutCommande[] = ['PAYEE', 'EN_PREPARATION', 'EXPEDIEE', 'LIVREE', 'ANNULEE'];
+  readonly statutEnCours = signal<number | null>(null);
   readonly televersementEnCours = signal(false);
   readonly apercuImage = signal('');
 
@@ -67,7 +68,16 @@ export class AdminPage implements OnInit {
   supprimerProduit(id: number) { if (!confirm('Supprimer ce produit ?')) return; this.admin.supprimerProduit(id).subscribe({ next: () => { this.notifier('Produit supprimé.'); this.chargerProduits(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Suppression impossible.') }); }
   enregistrerCategorie() { if (!this.categorie.nom.trim()) return; this.admin.creerCategorie(this.categorie).subscribe({ next: () => { this.notifier('Catégorie créée.'); this.categorie = { nom: '', description: '' }; this.chargerCategories(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Création impossible.') }); }
   supprimerCategorie(id: number) { if (!confirm('Supprimer cette catégorie ?')) return; this.admin.supprimerCategorie(id).subscribe({ next: () => { this.notifier('Catégorie supprimée.'); this.chargerCategories(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Suppression impossible.') }); }
-  changerStatut(commande: Commande, statut: string) { this.admin.changerStatutCommande(commande.id, statut as StatutCommande).subscribe({ next: () => { this.notifier('Statut mis à jour.'); this.chargerCommandes(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Transition de statut refusée.') }); }
+  libelleStatut(statut: string) { return ({ EN_ATTENTE_PAIEMENT: 'En attente de paiement', PAYEE: 'Payée', EN_PREPARATION: 'En préparation', EXPEDIEE: 'Expédiée', LIVREE: 'Livrée', ANNULEE: 'Annulée' } as Record<string, string>)[statut] ?? statut; }
+  prochaineEtape(statut: StatutCommande): StatutCommande | null { return ({ PAYEE: 'EN_PREPARATION', EN_PREPARATION: 'EXPEDIEE', EXPEDIEE: 'LIVREE' } as Partial<Record<StatutCommande, StatutCommande>>)[statut] ?? null; }
+  nombreStatut(statut: StatutCommande) { return this.commandes().filter((commande) => commande.statut === statut).length; }
+  changerStatut(commande: Commande, statut: StatutCommande) {
+    this.statutEnCours.set(commande.id); this.erreur.set('');
+    this.admin.changerStatutCommande(commande.id, statut).subscribe({
+      next: (miseAJour) => { this.commandes.update((items) => items.map((item) => item.id === miseAJour.id ? miseAJour : item)); this.statutEnCours.set(null); this.notifier(`Commande #${commande.id} : ${this.libelleStatut(statut).toLowerCase()}.`); },
+      error: (e) => { this.statutEnCours.set(null); this.erreur.set(e.error?.message ?? 'Transition de statut refusée.'); }
+    });
+  }
   creerAdministrateur() { if (this.nouvelAdmin.motDePasse.length < 12) { this.erreur.set('Le mot de passe doit comporter au moins 12 caractères.'); return; } this.admin.creerAdministrateur(this.nouvelAdmin).subscribe({ next: () => { this.notifier('Administrateur créé.'); this.nouvelAdmin = { nom: '', prenom: '', email: '', motDePasse: '', telephone: '', adresse: '' }; this.chargerAdministrateurs(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Création impossible.') }); }
   changerStatutAdmin(admin: Utilisateur, actif: boolean) { if (!admin.id) return; this.admin.changerStatutAdministrateur(admin.id, actif).subscribe({ next: () => { this.notifier('Statut mis à jour.'); this.chargerAdministrateurs(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Mise à jour impossible.') }); }
   private produitVide(): ProduitFormulaire { return { nom: '', description: '', prix: 0, quantiteStock: 0, imageUrl: '', categorieId: undefined }; }

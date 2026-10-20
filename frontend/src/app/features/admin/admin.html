@@ -135,14 +135,23 @@
   }
   @if (onglet === 'commandes') {
     <div class="table-card">
-      <h2>Toutes les commandes</h2>
+      <div class="orders-heading"><div><h2>Suivi des commandes</h2><p>Faites avancer chaque commande à la prochaine étape de livraison.</p></div><button class="refresh-button" (click)="chargerCommandes()">Actualiser</button></div>
+      <div class="order-summary">
+        <div><strong>{{ nombreStatut('EN_ATTENTE_PAIEMENT') }}</strong><span>En attente</span></div>
+        <div><strong>{{ nombreStatut('PAYEE') }}</strong><span>À traiter</span></div>
+        <div><strong>{{ nombreStatut('EN_PREPARATION') }}</strong><span>En préparation</span></div>
+        <div><strong>{{ nombreStatut('EXPEDIEE') }}</strong><span>Expédiées</span></div>
+        <div><strong>{{ nombreStatut('LIVREE') }}</strong><span>Livrées</span></div>
+      </div>
       <table>
         <thead>
           <tr>
             <th>#</th>
             <th>Client / livraison</th>
+            <th>Paiement</th>
             <th>Total</th>
             <th>Statut</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -152,20 +161,12 @@
                 #{{ commande.id }}<small>{{ commande.creeLe | date: 'dd/MM/yyyy' }}</small>
               </td>
               <td>
-                {{ commande.destinataireLivraison }}<small>{{ commande.villeLivraison }}</small>
+                {{ commande.destinataireLivraison }}<small>{{ commande.telephoneLivraison }}</small><small>{{ commande.adresseLivraison }}, {{ commande.villeLivraison }}</small>
               </td>
+              <td>{{ commande.modePaiement === 'ORANGE_MONEY' ? 'Orange Money' : commande.modePaiement === 'WAVE' ? 'Wave' : 'Simulé' }}<small>{{ commande.referencePaiement || 'Référence indisponible' }}</small></td>
               <td>{{ commande.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</td>
-              <td>
-                <select
-                  [ngModel]="commande.statut"
-                  (ngModelChange)="changerStatut(commande, $event)"
-                >
-                  <option value="EN_ATTENTE_PAIEMENT">En attente</option>
-                  @for (statut of statuts; track statut) {
-                    <option [value]="statut">{{ statut }}</option>
-                  }
-                </select>
-              </td>
+              <td><span class="admin-status" [class.is-done]="commande.statut === 'PAYEE' || commande.statut === 'EN_PREPARATION' || commande.statut === 'EXPEDIEE' || commande.statut === 'LIVREE'" [class.is-cancelled]="commande.statut === 'ANNULEE'">{{ libelleStatut(commande.statut) }}</span></td>
+              <td>@if (prochaineEtape(commande.statut); as etape) {<button class="advance-button" [disabled]="statutEnCours() === commande.id" (click)="changerStatut(commande, etape)">{{ statutEnCours() === commande.id ? 'Mise à jour…' : 'Passer à ' + libelleStatut(etape) }}</button>} @else {<span class="no-action">{{ commande.statut === 'EN_ATTENTE_PAIEMENT' ? 'Paiement requis' : 'Étape terminée' }}</span>}</td>
             </tr>
           }
         </tbody>
