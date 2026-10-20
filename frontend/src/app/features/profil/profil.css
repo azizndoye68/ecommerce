@@ -49,11 +49,68 @@
 .profile-page > .alert {
   margin: 1rem 0;
 }
+.danger-zone {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  border: 1px solid #f0d5d0;
+  border-radius: 1.15rem;
+  padding: clamp(1.15rem, 3vw, 1.65rem);
+  background: #fffaf9;
+}
+.danger-zone h2 {
+  margin: 0;
+  color: #7e3028;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.1rem;
+}
+.danger-zone p:not(.danger-eyebrow) {
+  max-width: 620px;
+  margin: 0.45rem 0 0;
+  color: #785c58;
+  font-size: 0.87rem;
+  line-height: 1.55;
+}
+.danger-eyebrow {
+  margin: 0 0 0.4rem;
+  color: #a63e34;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.danger-zone form {
+  display: grid;
+  gap: 0.75rem;
+}
+.delete-account-button {
+  min-height: 44px;
+  border: 1px solid #a63e34;
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  background: #a63e34;
+  color: white;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+.delete-account-button:hover:not(:disabled) {
+  background: #842f27;
+}
+.delete-account-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
 @media (max-width: 760px) {
   .profile-grid {
     grid-template-columns: 1fr;
   }
   .fields {
+    grid-template-columns: 1fr;
+  }
+  .danger-zone {
     grid-template-columns: 1fr;
   }
   .field.full {

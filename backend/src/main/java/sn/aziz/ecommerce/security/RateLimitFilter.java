@@ -20,7 +20,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !HttpMethod.POST.matches(request.getMethod()) || !"/api/auth/connexion".equals(request.getRequestURI());
+        if (!HttpMethod.POST.matches(request.getMethod())) return true;
+        String chemin = request.getRequestURI();
+        return !"/api/auth/connexion".equals(chemin) && !"/api/auth/mot-de-passe-oublie".equals(chemin);
     }
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String cle = request.getRemoteAddr(); long maintenant = System.currentTimeMillis();

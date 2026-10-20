@@ -18,6 +18,7 @@ export class Profil implements OnInit {
   readonly chargement = signal(true);
   readonly enregistrement = signal(false);
   readonly changementMotDePasse = signal(false);
+  readonly suppressionEnCours = signal(false);
   readonly erreur = signal('');
   readonly succes = signal('');
   readonly profil = signal<Utilisateur | null>(null);
@@ -33,6 +34,7 @@ export class Profil implements OnInit {
     nouveauMotDePasse: ['', [Validators.required, Validators.minLength(6)]],
     confirmation: ['', Validators.required],
   });
+  readonly suppressionForm = this.fb.nonNullable.group({ motDePasse: ['', Validators.required] });
 
   ngOnInit() {
     this.profilService.obtenir().subscribe({
@@ -74,6 +76,27 @@ export class Profil implements OnInit {
         this.changementMotDePasse.set(false);
       },
       error: (e) => { this.erreur.set(e.error?.message ?? 'Impossible de changer le mot de passe.'); this.changementMotDePasse.set(false); },
+    });
+  }
+
+  supprimerCompte() {
+    if (this.suppressionForm.invalid) { this.suppressionForm.markAllAsTouched(); return; }
+    const confirme = window.confirm('La suppression du compte est définitive. Tes informations personnelles seront effacées et tes anciennes commandes anonymisées. Continuer ?');
+    if (!confirme) return;
+    this.erreur.set('');
+    this.suppressionEnCours.set(true);
+    this.profilService.supprimerCompte(this.suppressionForm.getRawValue().motDePasse).subscribe({
+      next: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('utilisateur');
+        this.suppressionEnCours.set(false);
+        this.store.dispatch(AuthActions.deconnecterSucces());
+      },
+      error: (e) => {
+        this.erreur.set(e.error?.message ?? 'Impossible de supprimer le compte. Vérifie ton mot de passe et réessaie.');
+        this.suppressionEnCours.set(false);
+      },
     });
   }
 }

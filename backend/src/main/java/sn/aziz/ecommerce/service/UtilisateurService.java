@@ -17,6 +17,8 @@ public interface UtilisateurService {
 
     void changerMonMotDePasse(String email, String motDePasseActuel, String nouveauMotDePasse);
 
+    void supprimerMonCompte(String email, String motDePasse);
+
     UtilisateurDTO modifier(Long id, UtilisateurUpdateRequest request);
 
     void supprimer(Long id);

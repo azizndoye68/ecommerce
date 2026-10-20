@@ -12,6 +12,11 @@ export class AdministrationService {
   private readonly http = inject(HttpClient); private readonly api = environment.apiUrl;
   creerProduit(produit: Omit<Produit, 'id' | 'categorieNom'>) { return this.http.post<Produit>(`${this.api}/produits`, produit); }
   modifierProduit(id: number, produit: Omit<Produit, 'id' | 'categorieNom'>) { return this.http.put<Produit>(`${this.api}/produits/${id}`, produit); }
+  televerserImage(fichier: File) {
+    const formulaire = new FormData();
+    formulaire.append('fichier', fichier);
+    return this.http.post<{ imageUrl: string }>(`${this.api}/produits/image`, formulaire);
+  }
   supprimerProduit(id: number) { return this.http.delete<void>(`${this.api}/produits/${id}`); }
   creerCategorie(categorie: Omit<Categorie, 'id'>) { return this.http.post<Categorie>(`${this.api}/categories`, categorie); }
   supprimerCategorie(id: number) { return this.http.delete<void>(`${this.api}/categories/${id}`); }

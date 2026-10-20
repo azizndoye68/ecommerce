@@ -9,8 +9,7 @@ import sn.aziz.ecommerce.entity.*;
 import sn.aziz.ecommerce.exception.RessourceNonTrouveeException;
 import sn.aziz.ecommerce.repository.*;
 import sn.aziz.ecommerce.service.CommandeService;
-import sn.aziz.ecommerce.service.WaveService;
-import sn.aziz.ecommerce.service.OrangeMoneyService;
+import sn.aziz.ecommerce.service.UnitechPayService;
 import sn.aziz.ecommerce.service.PaiementInitialisation;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,8 +23,7 @@ public class CommandeServiceImpl implements CommandeService {
     private final PanierRepository panierRepository;
     private final ProduitRepository produitRepository;
     private final UtilisateurRepository utilisateurRepository;
-    private final WaveService waveService;
-    private final OrangeMoneyService orangeMoneyService;
+    private final UnitechPayService unitechPayService;
     @Value("${paiement.simulation-active:false}")
     private boolean simulationActive;
 
@@ -80,19 +78,24 @@ public class CommandeServiceImpl implements CommandeService {
             commande.setUrlPaiement(null);
             return toDTO(commandeRepository.save(commande));
         }
-        if (commande.getModePaiement() == ModePaiement.ORANGE_MONEY)
-            throw new IllegalArgumentException("La confirmation Orange Money doit provenir du webhook marchand sécurisé");
-        return confirmer(commande);
+        throw new IllegalArgumentException("La confirmation du paiement doit provenir du webhook UniTech Pay sécurisé");
     }
 
     @Override
     @Transactional
-    public CommandeDTO confirmerPaiementMarchand(ModePaiement modePaiement, String referencePaiement) {
+    public void confirmerPaiementUnitech(String referencePaiement, BigDecimal montant, ModePaiement modePaiement) {
         Commande commande = commandeRepository.findByReferencePaiement(referencePaiement)
                 .orElseThrow(() -> new RessourceNonTrouveeException("Commande introuvable"));
         if (commande.getModePaiement() != modePaiement)
             throw new IllegalArgumentException("Le moyen de paiement ne correspond pas à la commande");
-        return confirmer(commande);
+        if (montant == null || commande.getTotal().setScale(0, java.math.RoundingMode.HALF_UP).compareTo(montant) != 0)
+            throw new IllegalArgumentException("Le montant du webhook ne correspond pas à la commande");
+        if (commande.getStatut() == StatutCommande.PAYEE) return;
+        if (commande.getStatut() != StatutCommande.EN_ATTENTE_PAIEMENT)
+            throw new IllegalArgumentException("Cette commande ne peut plus être payée");
+        commande.setStatut(StatutCommande.PAYEE);
+        commande.setUrlPaiement(null);
+        commandeRepository.save(commande);
     }
 
     @Override
@@ -104,16 +107,6 @@ public class CommandeServiceImpl implements CommandeService {
             throw new IllegalArgumentException("Transition de statut de commande non autorisée");
         }
         commande.setStatut(statut);
-        return toDTO(commandeRepository.save(commande));
-    }
-
-    private CommandeDTO confirmer(Commande commande) {
-        if (commande.getStatut() == StatutCommande.PAYEE) return toDTO(commande);
-        if (commande.getStatut() != StatutCommande.EN_ATTENTE_PAIEMENT) throw new IllegalArgumentException("Cette commande ne peut plus être payée");
-        if (commande.getModePaiement() == ModePaiement.WAVE && !waveService.estPaye(commande.getReferencePaiement()))
-            throw new IllegalArgumentException("Le paiement Wave n'est pas encore confirmé");
-        commande.setStatut(StatutCommande.PAYEE);
-        commande.setUrlPaiement(null);
         return toDTO(commandeRepository.save(commande));
     }
 
@@ -167,8 +160,8 @@ public class CommandeServiceImpl implements CommandeService {
 
     private PaiementInitialisation initialiserPaiement(Commande commande) {
         return switch (commande.getModePaiement()) {
-            case WAVE -> waveService.creerSession(commande.getId(), commande.getTotal());
-            case ORANGE_MONEY -> orangeMoneyService.initialiser(commande.getId(), commande.getTotal());
+            case WAVE, ORANGE_MONEY -> unitechPayService.initialiser(commande.getModePaiement(), commande.getId(),
+                    commande.getTotal(), commande.getTelephoneLivraison());
             case SIMULE -> new PaiementInitialisation("SIM-" + UUID.randomUUID(), null);
         };
     }

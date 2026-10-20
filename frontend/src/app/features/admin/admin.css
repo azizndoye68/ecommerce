@@ -64,6 +64,26 @@
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
 }
+.image-field input[type='file'] {
+  min-height: auto;
+  padding: 0.55rem;
+  background: #fbfcf9;
+  font-size: 0.82rem;
+}
+.image-preview {
+  width: 100%;
+  max-height: 190px;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: #f5f6f2;
+  object-fit: contain;
+}
+.upload-status {
+  margin: 0;
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
 .table-card {
   overflow-x: auto;
 }

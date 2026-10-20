@@ -14,4 +14,7 @@ export class ProfilService {
   changerMotDePasse(motDePasseActuel: string, nouveauMotDePasse: string) {
     return this.http.put<void>(`${this.url}/mot-de-passe`, { motDePasseActuel, nouveauMotDePasse });
   }
+  supprimerCompte(motDePasse: string) {
+    return this.http.post<void>(`${this.url}/suppression`, { motDePasse });
+  }
 }

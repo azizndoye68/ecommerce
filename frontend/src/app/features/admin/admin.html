@@ -39,8 +39,31 @@
             ><input type="number" min="0" [(ngModel)]="produit.quantiteStock" name="stock" />
           </div>
         </div>
-        <div class="field">
-          <label>Image (URL)</label><input [(ngModel)]="produit.imageUrl" name="imageUrl" />
+        <div class="field image-field">
+          <label for="image-produit">Photo du produit</label>
+          <input
+            id="image-produit"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            (change)="selectionnerImage($event)"
+          />
+          <small
+            >PNG, JPEG, WebP ou GIF · 5 Mo maximum. L’image sera hébergée sur Cloudinary.</small
+          >
+          @if (televersementEnCours()) {
+            <p class="upload-status">Envoi de l’image…</p>
+          }
+          @if (apercuImage()) {
+            <img class="image-preview" [src]="apercuImage()" alt="Aperçu de la photo du produit" />
+          }
+          <label for="image-url">Ou coller une URL d’image</label>
+          <input
+            id="image-url"
+            [(ngModel)]="produit.imageUrl"
+            name="imageUrl"
+            (ngModelChange)="apercuImage.set($event)"
+            placeholder="https://…"
+          />
         </div>
         <div class="field">
           <label>Catégorie</label
@@ -51,7 +74,9 @@
             }
           </select>
         </div>
-        <button class="button">Enregistrer</button>
+        <button class="button" [disabled]="televersementEnCours()">
+          {{ televersementEnCours() ? 'Envoi en cours…' : 'Enregistrer' }}
+        </button>
       </form>
       <div class="table-card">
         <h2>Produits existants</h2>

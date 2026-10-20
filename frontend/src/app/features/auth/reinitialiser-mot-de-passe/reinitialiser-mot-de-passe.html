@@ -1,0 +1,28 @@
+<main class="reset-page">
+  <section class="reset-card">
+    <a class="reset-brand" routerLink="/"><span>S</span> SunuMarket</a>
+    @if (!termine()) {
+      <p class="eyebrow">SÉCURITÉ DU COMPTE</p>
+      <h1>Nouveau mot de passe</h1>
+      <p class="reset-intro">Choisis un mot de passe d’au moins 8 caractères pour retrouver l’accès à ton compte.</p>
+      @if (erreur()) { <p class="reset-error" role="alert">{{ erreur() }}</p> }
+      <form [formGroup]="formulaire" (ngSubmit)="reinitialiser()">
+        <div class="field">
+          <label for="nouveau-mot-de-passe">Nouveau mot de passe</label>
+          <input id="nouveau-mot-de-passe" type="password" formControlName="nouveauMotDePasse" autocomplete="new-password">
+          @if (formulaire.controls.nouveauMotDePasse.invalid && formulaire.controls.nouveauMotDePasse.touched) { <small>8 caractères minimum.</small> }
+        </div>
+        <div class="field">
+          <label for="confirmation-mot-de-passe">Confirmer le mot de passe</label>
+          <input id="confirmation-mot-de-passe" type="password" formControlName="confirmation" autocomplete="new-password">
+        </div>
+        <button class="button" type="submit" [disabled]="envoiEnCours()">{{ envoiEnCours() ? 'Mise à jour…' : 'Réinitialiser le mot de passe' }}</button>
+      </form>
+    } @else {
+      <p class="eyebrow">C’EST FAIT</p>
+      <h1>Mot de passe modifié</h1>
+      <p class="reset-intro">Ton nouveau mot de passe est enregistré. Tu peux maintenant te connecter.</p>
+    }
+    <p class="reset-back"><a routerLink="/connexion">← Aller à la connexion</a></p>
+  </section>
+</main>

@@ -1,0 +1,24 @@
+<main class="reset-page">
+  <section class="reset-card">
+    <a class="reset-brand" routerLink="/"><span>S</span> SunuMarket</a>
+    @if (!demandeEnvoyee()) {
+      <p class="eyebrow">RÉCUPÉRATION DU COMPTE</p>
+      <h1>Mot de passe oublié ?</h1>
+      <p class="reset-intro">Saisis l’adresse e-mail associée à ton compte. Nous t’enverrons un lien sécurisé pour en choisir un nouveau.</p>
+      @if (erreur()) { <p class="reset-error" role="alert">{{ erreur() }}</p> }
+      <form [formGroup]="formulaire" (ngSubmit)="demanderLien()">
+        <div class="field">
+          <label for="email-reset">Adresse e-mail</label>
+          <input id="email-reset" type="email" formControlName="email" autocomplete="email" placeholder="vous@exemple.com">
+          @if (formulaire.controls.email.invalid && formulaire.controls.email.touched) { <small>Saisis une adresse e-mail valide.</small> }
+        </div>
+        <button class="button" type="submit" [disabled]="envoiEnCours()">{{ envoiEnCours() ? 'Envoi…' : 'Recevoir le lien' }}</button>
+      </form>
+    } @else {
+      <p class="eyebrow">VÉRIFIE TA BOÎTE MAIL</p>
+      <h1>Demande prise en compte</h1>
+      <p class="reset-intro">Si un compte correspond à cette adresse, un lien de réinitialisation lui a été envoyé. Pense à vérifier tes courriers indésirables.</p>
+    }
+    <p class="reset-back"><a routerLink="/connexion">← Retour à la connexion</a></p>
+  </section>
+</main>

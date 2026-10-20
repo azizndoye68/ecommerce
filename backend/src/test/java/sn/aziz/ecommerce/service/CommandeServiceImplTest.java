@@ -28,14 +28,13 @@ class CommandeServiceImplTest {
     @Mock private PanierRepository panierRepository;
     @Mock private ProduitRepository produitRepository;
     @Mock private UtilisateurRepository utilisateurRepository;
-    @Mock private WaveService waveService;
-    @Mock private OrangeMoneyService orangeMoneyService;
+    @Mock private UnitechPayService unitechPayService;
     private CommandeService commandeService;
 
     @BeforeEach
     void setUp() {
         commandeService = new CommandeServiceImpl(commandeRepository, panierRepository, produitRepository,
-                utilisateurRepository, waveService, orangeMoneyService);
+                utilisateurRepository, unitechPayService);
     }
 
     @Test

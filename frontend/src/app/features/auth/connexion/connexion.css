@@ -153,6 +153,19 @@
 .auth-switch a:hover {
   text-decoration: underline;
 }
+.forgot-password {
+  margin: 1rem 0 0;
+  text-align: right;
+  font-size: 0.86rem;
+}
+.forgot-password a {
+  color: var(--green);
+  font-weight: 700;
+  text-decoration: none;
+}
+.forgot-password a:hover {
+  text-decoration: underline;
+}
 @media (max-width: 850px) {
   .auth-page {
     grid-template-columns: 1fr;

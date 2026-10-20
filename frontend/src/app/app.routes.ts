@@ -6,6 +6,8 @@ export const routes: Routes = [
   { path: '', loadComponent: () => import('./features/catalogue/catalogue').then((m) => m.Catalogue) },
   { path: 'produits/:id', loadComponent: () => import('./features/produit-detail/produit-detail').then((m) => m.ProduitDetail) },
   { path: 'connexion', loadComponent: () => import('./features/auth/connexion/connexion').then((m) => m.Connexion) },
+  { path: 'mot-de-passe-oublie', loadComponent: () => import('./features/auth/mot-de-passe-oublie/mot-de-passe-oublie').then((m) => m.MotDePasseOublie) },
+  { path: 'reinitialiser-mot-de-passe', loadComponent: () => import('./features/auth/reinitialiser-mot-de-passe/reinitialiser-mot-de-passe').then((m) => m.ReinitialiserMotDePasse) },
   { path: 'inscription', loadComponent: () => import('./features/auth/inscription/inscription').then((m) => m.Inscription) },
   { path: 'panier', canActivate: [authGuard], loadComponent: () => import('./features/panier/panier').then((m) => m.PanierPage) },
   { path: 'commande', canActivate: [authGuard], loadComponent: () => import('./features/checkout/checkout').then((m) => m.Checkout) },

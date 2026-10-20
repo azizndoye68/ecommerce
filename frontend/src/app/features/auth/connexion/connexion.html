@@ -12,6 +12,7 @@
       <div class="field"><label for="motDePasse">Mot de passe</label><input id="motDePasse" type="password" formControlName="motDePasse" autocomplete="current-password" placeholder="Votre mot de passe"></div>
       <button class="button auth-submit" type="submit" [disabled]="(chargement$ | async) ?? false">{{ (chargement$ | async) ? 'Connexion…' : 'Se connecter' }} <span aria-hidden="true">→</span></button>
     </form>
+    <p class="forgot-password"><a routerLink="/mot-de-passe-oublie">Mot de passe oublié ?</a></p>
     <p class="auth-switch">Vous n’avez pas encore de compte ? <a routerLink="/inscription">Créer un compte</a></p>
   </section>
 </main>

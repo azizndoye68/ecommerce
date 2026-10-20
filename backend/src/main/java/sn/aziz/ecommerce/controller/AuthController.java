@@ -5,7 +5,10 @@ import sn.aziz.ecommerce.dto.AuthResponse;
 import sn.aziz.ecommerce.dto.ConnexionRequest;
 import sn.aziz.ecommerce.dto.InscriptionRequest;
 import sn.aziz.ecommerce.dto.RefreshTokenRequest;
+import sn.aziz.ecommerce.dto.DemandeReinitialisationRequest;
+import sn.aziz.ecommerce.dto.ReinitialiserMotDePasseRequest;
 import sn.aziz.ecommerce.service.AuthService;
+import sn.aziz.ecommerce.service.ReinitialisationMotDePasseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,19 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final ReinitialisationMotDePasseService reinitialisationService;
+
+    @PostMapping("/mot-de-passe-oublie")
+    public ResponseEntity<java.util.Map<String, String>> demanderReinitialisation(
+            @Valid @RequestBody DemandeReinitialisationRequest request) {
+        return ResponseEntity.ok(java.util.Map.of("message", reinitialisationService.demander(request.getEmail())));
+    }
+
+    @PostMapping("/reinitialiser-mot-de-passe")
+    public ResponseEntity<Void> reinitialiserMotDePasse(@Valid @RequestBody ReinitialiserMotDePasseRequest request) {
+        reinitialisationService.reinitialiser(request.getToken(), request.getNouveauMotDePasse());
+        return ResponseEntity.noContent().build();
+    }
 
     @PostMapping("/inscription")
     public ResponseEntity<AuthResponse> inscrire(@Valid @RequestBody InscriptionRequest request) {

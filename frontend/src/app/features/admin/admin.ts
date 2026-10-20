@@ -20,6 +20,8 @@ export class AdminPage implements OnInit {
   categorie = { nom: '', description: '' };
   nouvelAdmin: CreerAdministrateurRequest = { nom: '', prenom: '', email: '', motDePasse: '', telephone: '', adresse: '' };
   readonly statuts: StatutCommande[] = ['PAYEE', 'EN_PREPARATION', 'EXPEDIEE', 'LIVREE', 'ANNULEE'];
+  readonly televersementEnCours = signal(false);
+  readonly apercuImage = signal('');
 
   ngOnInit() { this.chargerProduits(); this.chargerCategories(); this.chargerCommandes(); if (this.estSuperAdmin) this.chargerAdministrateurs(); }
   ouvrir(onglet: Onglet) { this.onglet = onglet; this.erreur.set(''); this.succes.set(''); }
@@ -28,11 +30,40 @@ export class AdminPage implements OnInit {
   chargerCommandes() { this.admin.commandes().subscribe({ next: (c) => this.commandes.set(c), error: (e) => this.erreur.set(e.error?.message ?? 'Chargement des commandes impossible.') }); }
   chargerAdministrateurs() { this.admin.administrateurs().subscribe({ next: (a) => this.administrateurs.set(a), error: (e) => this.erreur.set(e.error?.message ?? 'Chargement des administrateurs impossible.') }); }
   enregistrerProduit() {
+    if (this.televersementEnCours()) return;
     if (!this.produit.nom || !this.produit.prix || this.produit.quantiteStock === null) { this.erreur.set('Nom, prix et stock sont obligatoires.'); return; }
     const operation = this.editionProduitId ? this.admin.modifierProduit(this.editionProduitId, this.produit) : this.admin.creerProduit(this.produit);
-    operation.subscribe({ next: () => { this.notifier('Produit enregistré.'); this.produit = this.produitVide(); this.editionProduitId = undefined; this.chargerProduits(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Enregistrement impossible.') });
+    operation.subscribe({ next: () => { this.notifier('Produit enregistré.'); this.produit = this.produitVide(); this.apercuImage.set(''); this.editionProduitId = undefined; this.chargerProduits(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Enregistrement impossible.') });
   }
-  editerProduit(produit: Produit) { this.editionProduitId = produit.id; this.produit = { nom: produit.nom, description: produit.description ?? '', prix: produit.prix, quantiteStock: produit.quantiteStock, imageUrl: produit.imageUrl ?? '', categorieId: produit.categorieId }; this.ouvrir('produits'); }
+  editerProduit(produit: Produit) { this.editionProduitId = produit.id; this.produit = { nom: produit.nom, description: produit.description ?? '', prix: produit.prix, quantiteStock: produit.quantiteStock, imageUrl: produit.imageUrl ?? '', categorieId: produit.categorieId }; this.apercuImage.set(this.produit.imageUrl ?? ''); this.ouvrir('produits'); }
+  selectionnerImage(event: Event) {
+    const fichier = (event.target as HTMLInputElement).files?.[0];
+    if (!fichier) return;
+    if (!['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(fichier.type)) {
+      this.erreur.set('Choisissez une image PNG, JPEG, WebP ou GIF.');
+      return;
+    }
+    if (fichier.size > 5 * 1024 * 1024) {
+      this.erreur.set('L’image ne doit pas dépasser 5 Mo.');
+      return;
+    }
+    this.erreur.set('');
+    this.succes.set('');
+    this.apercuImage.set(URL.createObjectURL(fichier));
+    this.televersementEnCours.set(true);
+    this.admin.televerserImage(fichier).subscribe({
+      next: ({ imageUrl }) => {
+        this.produit.imageUrl = imageUrl;
+        this.apercuImage.set(imageUrl);
+        this.televersementEnCours.set(false);
+        this.notifier('Image téléversée. Enregistrez le produit pour appliquer la modification.');
+      },
+      error: (e) => {
+        this.televersementEnCours.set(false);
+        this.erreur.set(e.error?.message ?? 'Envoi de l’image impossible. Vérifiez la configuration Cloudinary.');
+      }
+    });
+  }
   supprimerProduit(id: number) { if (!confirm('Supprimer ce produit ?')) return; this.admin.supprimerProduit(id).subscribe({ next: () => { this.notifier('Produit supprimé.'); this.chargerProduits(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Suppression impossible.') }); }
   enregistrerCategorie() { if (!this.categorie.nom.trim()) return; this.admin.creerCategorie(this.categorie).subscribe({ next: () => { this.notifier('Catégorie créée.'); this.categorie = { nom: '', description: '' }; this.chargerCategories(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Création impossible.') }); }
   supprimerCategorie(id: number) { if (!confirm('Supprimer cette catégorie ?')) return; this.admin.supprimerCategorie(id).subscribe({ next: () => { this.notifier('Catégorie supprimée.'); this.chargerCategories(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Suppression impossible.') }); }

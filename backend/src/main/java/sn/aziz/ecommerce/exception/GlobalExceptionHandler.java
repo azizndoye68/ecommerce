@@ -11,6 +11,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -54,6 +55,12 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erreur);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErreurReponse> gererStatutHttp(ResponseStatusException ex, HttpServletRequest request) {
+        HttpStatus statut = HttpStatus.valueOf(ex.getStatusCode().value());
+        return erreur(statut, ex.getReason() == null ? "La requête ne peut pas être traitée." : ex.getReason(), request);
     }
 
     @ExceptionHandler(PaiementIndisponibleException.class)

@@ -1,9 +1,9 @@
 <app-header />
 <main class="app-content"><router-outlet /></main>
+<app-footer />
 @if (notification.message()) {
   <div class="toast-message" role="status" aria-live="polite">
     <span class="toast-check" aria-hidden="true">✓</span>
     <span>{{ notification.message() }}</span>
   </div>
 }
-<footer class="site-footer"><div><a class="footer-brand" routerLink="/">Sunu<span>Market</span></a><p>Le quotidien, tout près de vous.</p></div><span class="footer-note">Fait avec soin au Sénégal <b>✳</b></span></footer>

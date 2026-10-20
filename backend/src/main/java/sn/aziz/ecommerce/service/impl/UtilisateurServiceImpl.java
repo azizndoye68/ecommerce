@@ -3,8 +3,13 @@ package sn.aziz.ecommerce.service.impl;
 import sn.aziz.ecommerce.dto.UtilisateurDTO;
 import sn.aziz.ecommerce.dto.UtilisateurUpdateRequest;
 import sn.aziz.ecommerce.entity.Utilisateur;
+import sn.aziz.ecommerce.entity.Role;
 import sn.aziz.ecommerce.exception.RessourceNonTrouveeException;
 import sn.aziz.ecommerce.mapper.UtilisateurMapper;
+import sn.aziz.ecommerce.repository.CommandeRepository;
+import sn.aziz.ecommerce.repository.JetonReinitialisationRepository;
+import sn.aziz.ecommerce.repository.PanierRepository;
+import sn.aziz.ecommerce.repository.RefreshTokenRepository;
 import sn.aziz.ecommerce.repository.UtilisateurRepository;
 import sn.aziz.ecommerce.service.UtilisateurService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +29,10 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     private final UtilisateurRepository utilisateurRepository;
     private final UtilisateurMapper utilisateurMapper;
     private final PasswordEncoder passwordEncoder;
+    private final PanierRepository panierRepository;
+    private final CommandeRepository commandeRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JetonReinitialisationRepository jetonReinitialisationRepository;
 
     @Override
     public List<UtilisateurDTO> obtenirTous() {
@@ -59,6 +69,41 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             throw new IllegalArgumentException("Le mot de passe actuel est incorrect");
         }
         utilisateur.setMotDePasse(passwordEncoder.encode(nouveauMotDePasse));
+        utilisateurRepository.save(utilisateur);
+    }
+
+    @Override
+    @Transactional
+    public void supprimerMonCompte(String email, String motDePasse) {
+        Utilisateur utilisateur = trouverParEmail(email);
+        if (!passwordEncoder.matches(motDePasse, utilisateur.getMotDePasse())) {
+            throw new IllegalArgumentException("Le mot de passe est incorrect.");
+        }
+        if (utilisateur.getRole() != Role.CLIENT) {
+            throw new IllegalArgumentException("La suppression automatique est réservée aux comptes clients.");
+        }
+
+        commandeRepository.findByUtilisateurIdOrderByCreeLeDesc(utilisateur.getId()).forEach(commande -> {
+            commande.setDestinataireLivraison("Compte supprimé");
+            commande.setTelephoneLivraison("Supprimé");
+            commande.setAdresseLivraison("Supprimée");
+            commande.setVilleLivraison("Non renseignée");
+            commande.setPaysLivraison("Non renseigné");
+        });
+        panierRepository.findByUtilisateurId(utilisateur.getId()).ifPresent(panier -> {
+            panier.getLignes().clear();
+            panierRepository.delete(panier);
+        });
+        refreshTokenRepository.deleteByUtilisateurId(utilisateur.getId());
+        jetonReinitialisationRepository.deleteByUtilisateurId(utilisateur.getId());
+
+        utilisateur.setNom("Compte supprimé");
+        utilisateur.setPrenom("Compte");
+        utilisateur.setEmail("supprime+" + utilisateur.getId() + "@compte.invalid");
+        utilisateur.setTelephone(null);
+        utilisateur.setAdresse(null);
+        utilisateur.setMotDePasse(passwordEncoder.encode(UUID.randomUUID().toString()));
+        utilisateur.setActif(false);
         utilisateurRepository.save(utilisateur);
     }
 

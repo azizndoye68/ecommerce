@@ -22,6 +22,14 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.baseUrl}/connexion`, request);
   }
 
+  demanderReinitialisation(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/mot-de-passe-oublie`, { email });
+  }
+
+  reinitialiserMotDePasse(token: string, nouveauMotDePasse: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/reinitialiser-mot-de-passe`, { token, nouveauMotDePasse });
+  }
+
   rafraichir(request: RefreshTokenRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.baseUrl}/rafraichir`, request);
   }

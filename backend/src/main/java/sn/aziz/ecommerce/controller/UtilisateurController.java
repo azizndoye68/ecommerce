@@ -2,6 +2,7 @@ package sn.aziz.ecommerce.controller;
 
 import jakarta.validation.Valid;
 import sn.aziz.ecommerce.dto.ChangerMotDePasseRequest;
+import sn.aziz.ecommerce.dto.SupprimerCompteRequest;
 import sn.aziz.ecommerce.dto.UtilisateurDTO;
 import sn.aziz.ecommerce.dto.UtilisateurUpdateRequest;
 import sn.aziz.ecommerce.service.UtilisateurService;
@@ -38,6 +39,14 @@ public class UtilisateurController {
             @AuthenticationPrincipal UserDetails utilisateur,
             @Valid @RequestBody ChangerMotDePasseRequest request) {
         utilisateurService.changerMonMotDePasse(utilisateur.getUsername(), request.getMotDePasseActuel(), request.getNouveauMotDePasse());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/moi/suppression")
+    public ResponseEntity<Void> supprimerMonCompte(
+            @AuthenticationPrincipal UserDetails utilisateur,
+            @Valid @RequestBody SupprimerCompteRequest request) {
+        utilisateurService.supprimerMonCompte(utilisateur.getUsername(), request.getMotDePasse());
         return ResponseEntity.noContent().build();
     }
 
