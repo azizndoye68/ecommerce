@@ -103,6 +103,10 @@
   .visual {
     aspect-ratio: 1/0.78;
   }
+  .visual img {
+    object-fit: contain;
+    padding: 0.75rem;
+  }
   .detail > div:last-child {
     padding: 0.2rem 0;
   }
