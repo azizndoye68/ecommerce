@@ -107,6 +107,7 @@ public class CommandeServiceImpl implements CommandeService {
             throw new IllegalArgumentException("Transition de statut de commande non autorisée");
         }
         commande.setStatut(statut);
+        if (statut == StatutCommande.PAYEE) commande.setUrlPaiement(null);
         return toDTO(commandeRepository.save(commande));
     }
 
@@ -175,7 +176,8 @@ public class CommandeServiceImpl implements CommandeService {
     }
 
     private boolean transitionLivraisonAutorisee(StatutCommande actuel, StatutCommande cible) {
-        return (actuel == StatutCommande.PAYEE && cible == StatutCommande.EN_PREPARATION)
+        return (actuel == StatutCommande.EN_ATTENTE_PAIEMENT && cible == StatutCommande.PAYEE)
+                || (actuel == StatutCommande.PAYEE && cible == StatutCommande.EN_PREPARATION)
                 || (actuel == StatutCommande.EN_PREPARATION && cible == StatutCommande.EXPEDIEE)
                 || (actuel == StatutCommande.EXPEDIEE && cible == StatutCommande.LIVREE);
     }

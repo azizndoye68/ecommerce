@@ -19,7 +19,6 @@ export class AdminPage implements OnInit {
   produit: ProduitFormulaire = this.produitVide();
   categorie = { nom: '', description: '' };
   nouvelAdmin: CreerAdministrateurRequest = { nom: '', prenom: '', email: '', motDePasse: '', telephone: '', adresse: '' };
-  readonly statuts: StatutCommande[] = ['PAYEE', 'EN_PREPARATION', 'EXPEDIEE', 'LIVREE', 'ANNULEE'];
   readonly statutEnCours = signal<number | null>(null);
   readonly televersementEnCours = signal(false);
   readonly apercuImage = signal('');
@@ -69,9 +68,11 @@ export class AdminPage implements OnInit {
   enregistrerCategorie() { if (!this.categorie.nom.trim()) return; this.admin.creerCategorie(this.categorie).subscribe({ next: () => { this.notifier('Catégorie créée.'); this.categorie = { nom: '', description: '' }; this.chargerCategories(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Création impossible.') }); }
   supprimerCategorie(id: number) { if (!confirm('Supprimer cette catégorie ?')) return; this.admin.supprimerCategorie(id).subscribe({ next: () => { this.notifier('Catégorie supprimée.'); this.chargerCategories(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Suppression impossible.') }); }
   libelleStatut(statut: string) { return ({ EN_ATTENTE_PAIEMENT: 'En attente de paiement', PAYEE: 'Payée', EN_PREPARATION: 'En préparation', EXPEDIEE: 'Expédiée', LIVREE: 'Livrée', ANNULEE: 'Annulée' } as Record<string, string>)[statut] ?? statut; }
-  prochaineEtape(statut: StatutCommande): StatutCommande | null { return ({ PAYEE: 'EN_PREPARATION', EN_PREPARATION: 'EXPEDIEE', EXPEDIEE: 'LIVREE' } as Partial<Record<StatutCommande, StatutCommande>>)[statut] ?? null; }
+  prochaineEtape(statut: StatutCommande): StatutCommande | null { return ({ EN_ATTENTE_PAIEMENT: 'PAYEE', PAYEE: 'EN_PREPARATION', EN_PREPARATION: 'EXPEDIEE', EXPEDIEE: 'LIVREE' } as Partial<Record<StatutCommande, StatutCommande>>)[statut] ?? null; }
+  libelleAction(statut: StatutCommande) { return statut === 'PAYEE' ? 'Confirmer le paiement' : `Passer à ${this.libelleStatut(statut)}`; }
   nombreStatut(statut: StatutCommande) { return this.commandes().filter((commande) => commande.statut === statut).length; }
   changerStatut(commande: Commande, statut: StatutCommande) {
+    if (statut === 'PAYEE' && !confirm(`Confirmer la commande #${commande.id} comme payée ? Vérifie d’abord dans UniTech Pay ou Wave que le paiement est bien encaissé.`)) return;
     this.statutEnCours.set(commande.id); this.erreur.set('');
     this.admin.changerStatutCommande(commande.id, statut).subscribe({
       next: (miseAJour) => { this.commandes.update((items) => items.map((item) => item.id === miseAJour.id ? miseAJour : item)); this.statutEnCours.set(null); this.notifier(`Commande #${commande.id} : ${this.libelleStatut(statut).toLowerCase()}.`); },

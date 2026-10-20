@@ -59,6 +59,8 @@
 .admin-status.is-cancelled { background: #fff0ee; color: #b54747; }
 .advance-button { border: 0; border-radius: .6rem; padding: .58rem .72rem; background: var(--green); color: white; font: inherit; font-size: .75rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .advance-button:hover { background: var(--green-deep); }
+.advance-button.confirm-payment { background: #b76a28; }
+.advance-button.confirm-payment:hover { background: #96541f; }
 .advance-button:disabled { opacity: .6; cursor: wait; }
 .no-action { color: var(--muted); font-size: .75rem; }
 .admin-grid form {

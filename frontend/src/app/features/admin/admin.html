@@ -135,7 +135,7 @@
   }
   @if (onglet === 'commandes') {
     <div class="table-card">
-      <div class="orders-heading"><div><h2>Suivi des commandes</h2><p>Faites avancer chaque commande à la prochaine étape de livraison.</p></div><button class="refresh-button" (click)="chargerCommandes()">Actualiser</button></div>
+      <div class="orders-heading"><div><h2>Suivi des commandes</h2><p>Confirmez le paiement après vérification, puis faites avancer la préparation et la livraison.</p></div><button class="refresh-button" (click)="chargerCommandes()">Actualiser</button></div>
       <div class="order-summary">
         <div><strong>{{ nombreStatut('EN_ATTENTE_PAIEMENT') }}</strong><span>En attente</span></div>
         <div><strong>{{ nombreStatut('PAYEE') }}</strong><span>À traiter</span></div>
@@ -166,7 +166,15 @@
               <td>{{ commande.modePaiement === 'ORANGE_MONEY' ? 'Orange Money' : commande.modePaiement === 'WAVE' ? 'Wave' : 'Simulé' }}<small>{{ commande.referencePaiement || 'Référence indisponible' }}</small></td>
               <td>{{ commande.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</td>
               <td><span class="admin-status" [class.is-done]="commande.statut === 'PAYEE' || commande.statut === 'EN_PREPARATION' || commande.statut === 'EXPEDIEE' || commande.statut === 'LIVREE'" [class.is-cancelled]="commande.statut === 'ANNULEE'">{{ libelleStatut(commande.statut) }}</span></td>
-              <td>@if (prochaineEtape(commande.statut); as etape) {<button class="advance-button" [disabled]="statutEnCours() === commande.id" (click)="changerStatut(commande, etape)">{{ statutEnCours() === commande.id ? 'Mise à jour…' : 'Passer à ' + libelleStatut(etape) }}</button>} @else {<span class="no-action">{{ commande.statut === 'EN_ATTENTE_PAIEMENT' ? 'Paiement requis' : 'Étape terminée' }}</span>}</td>
+              <td>
+                @if (prochaineEtape(commande.statut); as etape) {
+                  <button class="advance-button" [class.confirm-payment]="etape === 'PAYEE'" [disabled]="statutEnCours() === commande.id" (click)="changerStatut(commande, etape)">
+                    {{ statutEnCours() === commande.id ? 'Mise à jour…' : libelleAction(etape) }}
+                  </button>
+                } @else {
+                  <span class="no-action">{{ commande.statut === 'ANNULEE' ? 'Commande annulée' : 'Étape terminée' }}</span>
+                }
+              </td>
             </tr>
           }
         </tbody>
