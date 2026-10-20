@@ -9,6 +9,7 @@ import java.util.HexFormat;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import sn.aziz.ecommerce.service.CommandeService;
 @RestController
 @RequestMapping("/api/webhooks")
 @RequiredArgsConstructor
+@Slf4j
 public class WebhookPaiementController {
     private static final String SIGNATURE_HEADER = "X-UNITECHPAY-SIGNATURE";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -43,10 +45,17 @@ public class WebhookPaiementController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payload UniTech Pay invalide");
         }
 
-        verifierSignature(rawBody, payload, headerSignature);
+        try {
+            verifierSignature(rawBody, payload, headerSignature);
+        } catch (ResponseStatusException ex) {
+            log.warn("Webhook UniTech Pay refusé: {}", ex.getReason());
+            throw ex;
+        }
         String event = texte(payload, "event");
-        if ("payment_failed".equals(event) || "payment_expired".equals(event))
+        if ("payment_failed".equals(event) || "payment_expired".equals(event)) {
+            log.info("Webhook UniTech Pay reçu: événement {}", event);
             return ResponseEntity.noContent().build();
+        }
         if (!"payment_completed".equals(event) || !"completed".equals(texte(payload, "status")))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Événement de paiement UniTech Pay non reconnu");
 
@@ -61,7 +70,13 @@ public class WebhookPaiementController {
             case "orange", "orange_money", "orange_om", "orange_maxit" -> ModePaiement.ORANGE_MONEY;
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Moyen de paiement UniTech Pay inconnu");
         };
-        commandeService.confirmerPaiementUnitech(reference, amountNode.decimalValue(), mode);
+        try {
+            commandeService.confirmerPaiementUnitech(reference, amountNode.decimalValue(), mode);
+        } catch (RuntimeException ex) {
+            log.warn("Webhook UniTech Pay valide mais commande non confirmée: {}", ex.getMessage());
+            throw ex;
+        }
+        log.info("Paiement UniTech Pay confirmé (canal {})", mode);
         return ResponseEntity.noContent().build();
     }
 

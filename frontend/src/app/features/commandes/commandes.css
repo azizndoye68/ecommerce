@@ -18,6 +18,11 @@
 .order footer {
   padding: 1rem 1.3rem;
 }
+.payment-pending {
+  color: var(--green-deep);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
 .order header {
   display: flex;
   align-items: center;

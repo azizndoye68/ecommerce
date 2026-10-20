@@ -1,5 +1,8 @@
 <section class="page">
   <h1 class="page-title">Mes commandes</h1>
+  @if (messagePaiement()) {
+    <p class="alert" role="status" aria-live="polite">{{ messagePaiement() }}</p>
+  }
   @if (erreur()) {
     <p class="alert">{{ erreur() }}</p>
   } @else if (chargement()) {
@@ -34,10 +37,14 @@
         </div>
         @if (commande.statut === 'EN_ATTENTE_PAIEMENT') {
           <footer>
-            @if (commande.urlPaiement) {
-              <button class="button" (click)="payer(commande)">Payer maintenant</button>
+            @if (commandeEnVerification() === commande.id) {
+              <span class="payment-pending" role="status">Confirmation du paiement en cours…</span>
+            } @else {
+              @if (commande.urlPaiement) {
+                <button class="button" (click)="payer(commande)">Payer maintenant</button>
+              }
+              <button class="button secondary" (click)="annuler(commande)">Annuler</button>
             }
-            <button class="button secondary" (click)="annuler(commande)">Annuler</button>
           </footer>
         }
       </article>
