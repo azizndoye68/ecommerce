@@ -1,12 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
 import { CatalogueService } from '../../core/services/catalogue.service';
 import { PanierService } from '../../core/services/panier.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Produit } from '../../core/models/catalogue.model';
+import { PrixCfaPipe } from '../../shared/pipes/prix-cfa.pipe';
 
-@Component({ selector: 'app-produit-detail', imports: [RouterLink, CurrencyPipe], templateUrl: './produit-detail.html', styleUrl: './produit-detail.css' })
+@Component({ selector: 'app-produit-detail', imports: [RouterLink, PrixCfaPipe], templateUrl: './produit-detail.html', styleUrl: './produit-detail.css' })
 export class ProduitDetail implements OnInit {
   private readonly route = inject(ActivatedRoute); private readonly router = inject(Router); private readonly catalogue = inject(CatalogueService); private readonly panier = inject(PanierService); private readonly notification = inject(NotificationService);
   readonly produit = signal<Produit | null>(null); readonly erreur = signal('');

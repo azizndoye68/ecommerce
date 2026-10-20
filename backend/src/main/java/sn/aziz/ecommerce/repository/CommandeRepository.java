@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface CommandeRepository extends JpaRepository<Commande, Long> {
     List<Commande> findByUtilisateurIdOrderByCreeLeDesc(Long utilisateurId);
+    List<Commande> findAllByOrderByCreeLeDesc();
     Optional<Commande> findByIdAndUtilisateurId(Long id, Long utilisateurId);
     Optional<Commande> findByReferencePaiement(String referencePaiement);
 }

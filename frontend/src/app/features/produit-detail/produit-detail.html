@@ -15,7 +15,7 @@
         <p class="eyebrow">{{ produit.categorieNom || 'Catalogue' }}</p>
         <h1 class="page-title">{{ produit.nom }}</h1>
         <strong class="price">{{
-          produit.prix | currency: 'XOF' : 'symbol-narrow' : '1.0-0'
+          produit.prix | prixCfa
         }}</strong>
         <p class="description">
           {{ produit.description || 'Aucune description disponible pour ce produit.' }}

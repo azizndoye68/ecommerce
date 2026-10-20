@@ -81,7 +81,7 @@
               {{ produit.description || 'Produit disponible dans notre boutique.' }}
             </p>
             <div class="product-footer">
-              <strong>{{ produit.prix | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</strong
+              <strong>{{ produit.prix | prixCfa }}</strong
               ><button
                 class="button"
                 [disabled]="produit.quantiteStock < 1"

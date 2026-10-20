@@ -1,18 +1,20 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AdministrationService, CreerAdministrateurRequest } from '../../core/services/administration.service';
 import { CatalogueService } from '../../core/services/catalogue.service';
 import { Categorie, Produit } from '../../core/models/catalogue.model';
 import { Commande, StatutCommande } from '../../core/models/commande.model';
 import { Utilisateur } from '../../core/models/utilisateur.model';
+import { PrixCfaPipe } from '../../shared/pipes/prix-cfa.pipe';
 
 type Onglet = 'produits' | 'categories' | 'commandes' | 'administrateurs';
 type ProduitFormulaire = Omit<Produit, 'id' | 'categorieNom'>;
 
-@Component({ selector: 'app-admin', imports: [FormsModule, CurrencyPipe, DatePipe], templateUrl: './admin.html', styleUrl: './admin.css' })
+@Component({ selector: 'app-admin', imports: [FormsModule, PrixCfaPipe, DatePipe], templateUrl: './admin.html', styleUrl: './admin.css' })
 export class AdminPage implements OnInit {
   private readonly admin = inject(AdministrationService); private readonly catalogue = inject(CatalogueService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly produits = signal<Produit[]>([]); readonly categories = signal<Categorie[]>([]); readonly commandes = signal<Commande[]>([]); readonly administrateurs = signal<Utilisateur[]>([]); readonly erreur = signal(''); readonly succes = signal('');
   onglet: Onglet = 'produits'; readonly estSuperAdmin = localStorage.getItem('utilisateur')?.includes('SUPER_ADMIN') ?? false;
   editionProduitId?: number;
@@ -23,7 +25,12 @@ export class AdminPage implements OnInit {
   readonly televersementEnCours = signal(false);
   readonly apercuImage = signal('');
 
-  ngOnInit() { this.chargerProduits(); this.chargerCategories(); this.chargerCommandes(); if (this.estSuperAdmin) this.chargerAdministrateurs(); }
+  ngOnInit() {
+    this.chargerProduits(); this.chargerCategories(); this.chargerCommandes();
+    if (this.estSuperAdmin) this.chargerAdministrateurs();
+    const actualisation = setInterval(() => { if (this.onglet === 'commandes') this.chargerCommandes(); }, 15_000);
+    this.destroyRef.onDestroy(() => clearInterval(actualisation));
+  }
   ouvrir(onglet: Onglet) { this.onglet = onglet; this.erreur.set(''); this.succes.set(''); }
   chargerProduits() { this.catalogue.produits(0).subscribe({ next: (p) => this.produits.set(p.content), error: () => this.erreur.set('Chargement des produits impossible.') }); }
   chargerCategories() { this.catalogue.categories().subscribe({ next: (c) => this.categories.set(c), error: () => this.erreur.set('Chargement des catégories impossible.') }); }
@@ -68,11 +75,9 @@ export class AdminPage implements OnInit {
   enregistrerCategorie() { if (!this.categorie.nom.trim()) return; this.admin.creerCategorie(this.categorie).subscribe({ next: () => { this.notifier('Catégorie créée.'); this.categorie = { nom: '', description: '' }; this.chargerCategories(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Création impossible.') }); }
   supprimerCategorie(id: number) { if (!confirm('Supprimer cette catégorie ?')) return; this.admin.supprimerCategorie(id).subscribe({ next: () => { this.notifier('Catégorie supprimée.'); this.chargerCategories(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Suppression impossible.') }); }
   libelleStatut(statut: string) { return ({ EN_ATTENTE_PAIEMENT: 'En attente de paiement', PAYEE: 'Payée', EN_PREPARATION: 'En préparation', EXPEDIEE: 'Expédiée', LIVREE: 'Livrée', ANNULEE: 'Annulée' } as Record<string, string>)[statut] ?? statut; }
-  prochaineEtape(statut: StatutCommande): StatutCommande | null { return ({ EN_ATTENTE_PAIEMENT: 'PAYEE', PAYEE: 'EN_PREPARATION', EN_PREPARATION: 'EXPEDIEE', EXPEDIEE: 'LIVREE' } as Partial<Record<StatutCommande, StatutCommande>>)[statut] ?? null; }
-  libelleAction(statut: StatutCommande) { return statut === 'PAYEE' ? 'Confirmer le paiement' : `Passer à ${this.libelleStatut(statut)}`; }
+  prochaineEtape(statut: StatutCommande): StatutCommande | null { return ({ PAYEE: 'EN_PREPARATION', EN_PREPARATION: 'EXPEDIEE', EXPEDIEE: 'LIVREE' } as Partial<Record<StatutCommande, StatutCommande>>)[statut] ?? null; }
   nombreStatut(statut: StatutCommande) { return this.commandes().filter((commande) => commande.statut === statut).length; }
   changerStatut(commande: Commande, statut: StatutCommande) {
-    if (statut === 'PAYEE' && !confirm(`Confirmer la commande #${commande.id} comme payée ? Vérifie d’abord dans UniTech Pay ou Wave que le paiement est bien encaissé.`)) return;
     this.statutEnCours.set(commande.id); this.erreur.set('');
     this.admin.changerStatutCommande(commande.id, statut).subscribe({
       next: (miseAJour) => { this.commandes.update((items) => items.map((item) => item.id === miseAJour.id ? miseAJour : item)); this.statutEnCours.set(null); this.notifier(`Commande #${commande.id} : ${this.libelleStatut(statut).toLowerCase()}.`); },

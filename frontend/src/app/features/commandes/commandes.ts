@@ -1,10 +1,11 @@
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { DatePipe, CurrencyPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { CommandeService } from '../../core/services/commande.service';
 import { Commande } from '../../core/models/commande.model';
+import { PrixCfaPipe } from '../../shared/pipes/prix-cfa.pipe';
 
-@Component({ selector: 'app-commandes', imports: [DatePipe, CurrencyPipe], templateUrl: './commandes.html', styleUrl: './commandes.css' })
+@Component({ selector: 'app-commandes', imports: [DatePipe, PrixCfaPipe], templateUrl: './commandes.html', styleUrl: './commandes.css' })
 export class Commandes implements OnInit {
   private readonly service = inject(CommandeService);
   private readonly route = inject(ActivatedRoute);

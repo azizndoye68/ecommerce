@@ -1,13 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
 import { CatalogueService } from '../../core/services/catalogue.service';
 import { PanierService } from '../../core/services/panier.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Categorie, PageResult, Produit } from '../../core/models/catalogue.model';
+import { PrixCfaPipe } from '../../shared/pipes/prix-cfa.pipe';
 
-@Component({ selector: 'app-catalogue', imports: [FormsModule, RouterLink, CurrencyPipe], templateUrl: './catalogue.html', styleUrl: './catalogue.css' })
+@Component({ selector: 'app-catalogue', imports: [FormsModule, RouterLink, PrixCfaPipe], templateUrl: './catalogue.html', styleUrl: './catalogue.css' })
 export class Catalogue implements OnInit {
   private readonly catalogue = inject(CatalogueService);
   private readonly router = inject(Router);

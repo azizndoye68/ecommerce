@@ -31,7 +31,7 @@
         </div>
         <div class="two">
           <div class="field">
-            <label>Prix (XOF)</label
+            <label>Prix (FCFA)</label
             ><input type="number" min="1" [(ngModel)]="produit.prix" name="prix" />
           </div>
           <div class="field">
@@ -93,7 +93,7 @@
             @for (produit of produits(); track produit.id) {
               <tr>
                 <td>{{ produit.nom }}</td>
-                <td>{{ produit.prix | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td>{{ produit.prix | prixCfa }}</td>
                 <td>{{ produit.quantiteStock }}</td>
                 <td>
                   <button (click)="editerProduit(produit)">Modifier</button
@@ -135,7 +135,7 @@
   }
   @if (onglet === 'commandes') {
     <div class="table-card">
-      <div class="orders-heading"><div><h2>Suivi des commandes</h2><p>Confirmez le paiement après vérification, puis faites avancer la préparation et la livraison.</p></div><button class="refresh-button" (click)="chargerCommandes()">Actualiser</button></div>
+      <div class="orders-heading"><div><h2>Suivi des commandes</h2><p>Les paiements sont confirmés automatiquement. Gérez ensuite la préparation et la livraison.</p></div><button class="refresh-button" (click)="chargerCommandes()">Actualiser</button></div>
       <div class="order-summary">
         <div><strong>{{ nombreStatut('EN_ATTENTE_PAIEMENT') }}</strong><span>En attente</span></div>
         <div><strong>{{ nombreStatut('PAYEE') }}</strong><span>À traiter</span></div>
@@ -164,15 +164,15 @@
                 {{ commande.destinataireLivraison }}<small>{{ commande.telephoneLivraison }}</small><small>{{ commande.adresseLivraison }}, {{ commande.villeLivraison }}</small>
               </td>
               <td>{{ commande.modePaiement === 'ORANGE_MONEY' ? 'Orange Money' : commande.modePaiement === 'WAVE' ? 'Wave' : 'Simulé' }}<small>{{ commande.referencePaiement || 'Référence indisponible' }}</small></td>
-              <td>{{ commande.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</td>
+              <td>{{ commande.total | prixCfa }}</td>
               <td><span class="admin-status" [class.is-done]="commande.statut === 'PAYEE' || commande.statut === 'EN_PREPARATION' || commande.statut === 'EXPEDIEE' || commande.statut === 'LIVREE'" [class.is-cancelled]="commande.statut === 'ANNULEE'">{{ libelleStatut(commande.statut) }}</span></td>
               <td>
                 @if (prochaineEtape(commande.statut); as etape) {
                   <button class="advance-button" [class.confirm-payment]="etape === 'PAYEE'" [disabled]="statutEnCours() === commande.id" (click)="changerStatut(commande, etape)">
-                    {{ statutEnCours() === commande.id ? 'Mise à jour…' : libelleAction(etape) }}
+                    {{ statutEnCours() === commande.id ? 'Mise à jour…' : 'Passer à ' + libelleStatut(etape) }}
                   </button>
                 } @else {
-                  <span class="no-action">{{ commande.statut === 'ANNULEE' ? 'Commande annulée' : 'Étape terminée' }}</span>
+                  <span class="no-action">{{ commande.statut === 'EN_ATTENTE_PAIEMENT' ? 'En attente de confirmation automatique' : commande.statut === 'ANNULEE' ? 'Commande annulée' : 'Étape terminée' }}</span>
                 }
               </td>
             </tr>

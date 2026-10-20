@@ -19,14 +19,14 @@
               </div>
               <div class="line-name">
                 <h2>{{ ligne.nom }}</h2>
-                <span>{{ ligne.prixUnitaire | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</span>
+                <span>{{ ligne.prixUnitaire | prixCfa }}</span>
               </div>
               <div class="quantity">
                 <button (click)="modifier(ligne.produitId, ligne.quantite - 1)">−</button
                 ><span>{{ ligne.quantite }}</span
                 ><button (click)="modifier(ligne.produitId, ligne.quantite + 1)">+</button>
               </div>
-              <strong>{{ ligne.sousTotal | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</strong
+              <strong>{{ ligne.sousTotal | prixCfa }}</strong
               ><button class="remove" (click)="supprimer(ligne.produitId)">Retirer</button>
             </article>
           }
@@ -35,7 +35,7 @@
           <h2>Récapitulatif</h2>
           <div>
             <span>Total</span
-            ><strong>{{ panier.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</strong>
+            ><strong>{{ panier.total | prixCfa }}</strong>
           </div>
           <a class="button" routerLink="/commande">Passer la commande</a
           ><a class="continue" routerLink="/">Continuer mes achats</a>

@@ -50,12 +50,12 @@
         @for (ligne of panier.lignes; track ligne.produitId) {
           <div class="summary-line">
             <span>{{ ligne.quantite }} × {{ ligne.nom }}</span
-            ><strong>{{ ligne.sousTotal | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</strong>
+            ><strong>{{ ligne.sousTotal | prixCfa }}</strong>
           </div>
         }
         <div class="total">
           <span>Total</span
-          ><strong>{{ panier.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</strong>
+          ><strong>{{ panier.total | prixCfa }}</strong>
         </div>
       </aside>
     }

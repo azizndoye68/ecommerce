@@ -24,12 +24,12 @@
             @for (ligne of commande.lignes; track ligne.produitId) {
               <p>
                 {{ ligne.quantite }} × {{ ligne.nomProduit }}
-                <strong>{{ ligne.sousTotal | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}</strong>
+                <strong>{{ ligne.sousTotal | prixCfa }}</strong>
               </p>
             }
           </div>
           <div class="total">
-            Total : {{ commande.total | currency: 'XOF' : 'symbol-narrow' : '1.0-0' }}
+            Total : {{ commande.total | prixCfa }}
           </div>
         </div>
         @if (commande.statut !== 'EN_ATTENTE_PAIEMENT' && commande.statut !== 'ANNULEE') {

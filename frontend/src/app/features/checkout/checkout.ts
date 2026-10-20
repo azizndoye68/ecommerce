@@ -1,12 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { PanierService } from '../../core/services/panier.service';
 import { CommandeService } from '../../core/services/commande.service';
 import { environment } from '../../environments/environment';
+import { PrixCfaPipe } from '../../shared/pipes/prix-cfa.pipe';
 
-@Component({ selector: 'app-checkout', imports: [ReactiveFormsModule, RouterLink, CurrencyPipe], templateUrl: './checkout.html', styleUrl: './checkout.css' })
+@Component({ selector: 'app-checkout', imports: [ReactiveFormsModule, RouterLink, PrixCfaPipe], templateUrl: './checkout.html', styleUrl: './checkout.css' })
 export class Checkout implements OnInit {
   private readonly fb = inject(FormBuilder); private readonly router = inject(Router); readonly panierService = inject(PanierService); private readonly commandes = inject(CommandeService);
   readonly erreur = signal(''); readonly envoi = signal(false);

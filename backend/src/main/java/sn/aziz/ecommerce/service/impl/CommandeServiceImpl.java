@@ -120,7 +120,7 @@ public class CommandeServiceImpl implements CommandeService {
     @Override
     @Transactional(readOnly = true)
     public List<CommandeDTO> toutesLesCommandes() {
-        return commandeRepository.findAll().stream().map(this::toDTO).toList();
+        return commandeRepository.findAllByOrderByCreeLeDesc().stream().map(this::toDTO).toList();
     }
 
     @Override
@@ -176,8 +176,7 @@ public class CommandeServiceImpl implements CommandeService {
     }
 
     private boolean transitionLivraisonAutorisee(StatutCommande actuel, StatutCommande cible) {
-        return (actuel == StatutCommande.EN_ATTENTE_PAIEMENT && cible == StatutCommande.PAYEE)
-                || (actuel == StatutCommande.PAYEE && cible == StatutCommande.EN_PREPARATION)
+        return (actuel == StatutCommande.PAYEE && cible == StatutCommande.EN_PREPARATION)
                 || (actuel == StatutCommande.EN_PREPARATION && cible == StatutCommande.EXPEDIEE)
                 || (actuel == StatutCommande.EXPEDIEE && cible == StatutCommande.LIVREE);
     }
