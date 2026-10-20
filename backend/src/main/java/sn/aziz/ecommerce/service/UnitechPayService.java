@@ -7,6 +7,8 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -18,6 +20,7 @@ import sn.aziz.ecommerce.exception.PaiementIndisponibleException;
 
 /** Adaptateur serveur vers UniTech Pay pour Wave et Orange Money au Sénégal. */
 @Service
+@Slf4j
 public class UnitechPayService {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     @org.springframework.beans.factory.annotation.Value("${unitechpay.base-url:https://api.unitech.sn/api.php}") private String baseUrl;
@@ -68,6 +71,10 @@ public class UnitechPayService {
             throw new PaiementIndisponibleException(messageErreurFournisseur(ex));
         } catch (ResourceAccessException ex) {
             throw new PaiementIndisponibleException("Impossible de joindre UniTech Pay. Vérifie ta connexion Internet et l'accès à api.unitech.sn.");
+        } catch (JsonProcessingException ex) {
+            log.warn("Réponse UniTech Pay non JSON: {}", ex.getOriginalMessage());
+            throw new PaiementIndisponibleException(
+                    "UniTech Pay a renvoyé une réponse illisible. Vérifie dans Render que UNITECHPAY_BASE_URL vaut exactement https://api.unitech.sn/api.php.");
         } catch (Exception ex) {
             throw new PaiementIndisponibleException("Erreur de communication avec UniTech Pay (" + ex.getClass().getSimpleName() + ")");
         }
