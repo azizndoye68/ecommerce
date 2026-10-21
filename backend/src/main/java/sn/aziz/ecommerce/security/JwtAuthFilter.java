@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,11 +22,18 @@ import sn.aziz.ecommerce.service.SessionService;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final SessionService sessionService;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // La déconnexion doit pouvoir révoquer le refresh token même si l'access token a expiré.
+        return "/api/auth/deconnexion".equals(request.getServletPath());
+    }
 
     @Override
     protected void doFilterInternal(
@@ -49,7 +57,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
         } catch (JwtException | IllegalArgumentException ex) {
-            System.out.println("ERREUR JWT : " + ex.getClass().getSimpleName() + " - " + ex.getMessage());
+            log.debug("Requête avec un JWT invalide ou expiré ({})", ex.getClass().getSimpleName());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/json;charset=UTF-8");

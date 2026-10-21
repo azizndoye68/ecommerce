@@ -86,7 +86,8 @@ export class AuthEffects {
       ofType(AuthActions.deconnecter),
       switchMap(() => {
         const token = localStorage.getItem('token');
-        const deconnexion$ = token ? this.authService.deconnecter(token) : of(void 0);
+        const refreshToken = localStorage.getItem('refreshToken');
+        const deconnexion$ = token ? this.authService.deconnecter(token, refreshToken) : of(void 0);
         return deconnexion$.pipe(
           map(() => AuthActions.deconnecterSucces()),
           catchError(() => of(AuthActions.deconnecterSucces())),

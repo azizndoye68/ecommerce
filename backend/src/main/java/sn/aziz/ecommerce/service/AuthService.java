@@ -13,5 +13,5 @@ public interface AuthService {
 
     AuthResponse rafraichir(RefreshTokenRequest request);
 
-    void deconnecter(String token);
+    void deconnecter(String token, String refreshToken);
 }

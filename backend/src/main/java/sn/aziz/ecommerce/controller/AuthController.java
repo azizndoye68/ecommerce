@@ -52,9 +52,10 @@ public class AuthController {
     }
 
     @PostMapping("/deconnexion")
-    public ResponseEntity<Void> deconnecter(@RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<Void> deconnecter(@RequestHeader("Authorization") String authorization,
+            @RequestBody(required = false) RefreshTokenRequest request) {
         if (!authorization.startsWith("Bearer ")) throw new IllegalArgumentException("En-tête Authorization invalide");
-        authService.deconnecter(authorization.substring(7));
+        authService.deconnecter(authorization.substring(7), request == null ? null : request.getRefreshToken());
         return ResponseEntity.noContent().build();
     }
 }

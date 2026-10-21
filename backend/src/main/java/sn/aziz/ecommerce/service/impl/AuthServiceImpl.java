@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import io.jsonwebtoken.JwtException;
 
 @Service
 @RequiredArgsConstructor
@@ -66,8 +67,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void deconnecter(String token) {
-        sessionService.revoquerAccessToken(jwtService.extraireJti(token), jwtService.extraireExpiration(token));
+    public void deconnecter(String token, String refreshToken) {
+        try {
+            sessionService.revoquerAccessToken(jwtService.extraireJti(token), jwtService.extraireExpiration(token));
+        } catch (JwtException | IllegalArgumentException ignored) {
+            // L'access token peut déjà être expiré; le refresh token sera tout de même révoqué.
+        }
+        sessionService.revoquerRefreshToken(refreshToken);
     }
 
     private AuthResponse reponse(Utilisateur utilisateur) {

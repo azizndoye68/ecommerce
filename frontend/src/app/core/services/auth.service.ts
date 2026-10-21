@@ -34,8 +34,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.baseUrl}/rafraichir`, request);
   }
 
-  deconnecter(token: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/deconnexion`, {}, {
+  deconnecter(token: string, refreshToken: string | null): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/deconnexion`, { refreshToken }, {
       headers: { Authorization: `Bearer ${token}` }
     });
   }

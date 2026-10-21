@@ -40,6 +40,12 @@ export const authReducer = createReducer(
     }
   })),
 
+  on(AuthActions.jetonRafraichi, (state, { response }) => ({
+    ...state,
+    token: response.token,
+    refreshToken: response.refreshToken
+  })),
+
   on(AuthActions.connecterEchec, AuthActions.inscrireEchec, (state, { erreur }) => ({
     ...state,
     chargement: false,

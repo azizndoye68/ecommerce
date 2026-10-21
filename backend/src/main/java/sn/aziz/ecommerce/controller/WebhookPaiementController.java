@@ -45,6 +45,9 @@ public class WebhookPaiementController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payload UniTech Pay invalide");
         }
 
+        log.info("Notification UniTech reçue (event={}, status={}, method={})",
+                texte(payload, "event"), texte(payload, "status"), texte(payload, "method"));
+
         try {
             verifierSignature(rawBody, payload, headerSignature);
         } catch (ResponseStatusException ex) {

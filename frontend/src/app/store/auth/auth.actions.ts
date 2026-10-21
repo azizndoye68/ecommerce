@@ -16,6 +16,8 @@ export const AuthActions = createActionGroup({
     'Deconnecter': emptyProps(),
     'Deconnecter Succes': emptyProps(),
 
+    'Jeton Rafraichi': props<{ response: AuthResponse }>(),
+
     'Restaurer Session': emptyProps(),
     'Utilisateur Mis A Jour': props<{ utilisateur: Utilisateur }>()
   }

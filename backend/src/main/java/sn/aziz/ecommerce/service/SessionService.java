@@ -37,10 +37,19 @@ public class SessionService {
     public Utilisateur consommerRefreshToken(String token) {
         RefreshToken refresh = refreshTokenRepository.findByTokenHash(hash(token))
                 .orElseThrow(() -> new IllegalArgumentException("Session invalide"));
-        if (refresh.isRevoque() || refresh.getExpireLe().isBefore(LocalDateTime.now()) || !refresh.getUtilisateur().isEnabled())
+        LocalDateTime maintenant = LocalDateTime.now();
+        if (refresh.isRevoque() || !refresh.getExpireLe().isAfter(maintenant) || !refresh.getUtilisateur().isEnabled())
             throw new IllegalArgumentException("Session expirée ou révoquée");
-        refresh.setRevoque(true);
+        if (refreshTokenRepository.revoquerSiActif(refresh.getId(), maintenant) != 1)
+            throw new IllegalArgumentException("Session déjà utilisée ou expirée");
         return refresh.getUtilisateur();
+    }
+
+    public void revoquerRefreshToken(String token) {
+        if (token == null || token.isBlank()) return;
+        refreshTokenRepository.findByTokenHash(hash(token)).ifPresent(refresh -> {
+            if (!refresh.isRevoque()) refresh.setRevoque(true);
+        });
     }
 
     public void revoquerAccessToken(String jti, LocalDateTime expiration) {
