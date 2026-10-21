@@ -44,10 +44,12 @@ public class UnitechPayService {
             throw new PaiementIndisponibleException("Le numéro de téléphone de livraison est requis pour le paiement");
         body.put("customer_number", telephone);
 
+        String uri = null;
+        String jsonResponse = null;
         try {
-            String uri = UriComponentsBuilder.fromUriString(baseUrl).queryParam("action", action).build().toUriString();
+            uri = UriComponentsBuilder.fromUriString(baseUrl).queryParam("action", action).build().toUriString();
             String jsonRequest = OBJECT_MAPPER.writeValueAsString(body);
-            String jsonResponse = RestClient.create().post().uri(uri)
+            jsonResponse = RestClient.create().post().uri(uri)
                     .headers(headers -> headers.setBearerAuth(apiKey))
                     .contentType(MediaType.APPLICATION_JSON).body(jsonRequest).retrieve().body(String.class);
             JsonNode response = jsonResponse == null ? null : OBJECT_MAPPER.readTree(jsonResponse);
@@ -72,7 +74,10 @@ public class UnitechPayService {
         } catch (ResourceAccessException ex) {
             throw new PaiementIndisponibleException("Impossible de joindre UniTech Pay. Vérifie ta connexion Internet et l'accès à api.unitech.sn.");
         } catch (JsonProcessingException ex) {
-            log.warn("Réponse UniTech Pay non JSON: {}", ex.getOriginalMessage());
+            String extrait = jsonResponse == null ? "<réponse vide>" : jsonResponse
+                    .replaceAll("[\\r\\n\\t]+", " ").substring(0, Math.min(jsonResponse.length(), 500));
+            log.warn("Réponse UniTech Pay non JSON pour {}: {}. Début de la réponse: {}",
+                    uri, ex.getOriginalMessage(), extrait);
             throw new PaiementIndisponibleException(
                     "UniTech Pay a renvoyé une réponse illisible. Vérifie dans Render que UNITECHPAY_BASE_URL vaut exactement https://api.unitech.sn/api.php.");
         } catch (Exception ex) {
