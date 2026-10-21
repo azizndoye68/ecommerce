@@ -37,7 +37,7 @@ public class UnitechPayService {
         String action = mode == ModePaiement.WAVE ? "create_wave_payment" : orangeAction;
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("amount", total.setScale(0, RoundingMode.HALF_UP));
-        body.put("description", "Paiement SunuMarket - Commande #" + commandeId);
+        body.put("description", "Commande #" + commandeId);
         ajouterCallbackHttps(body, "callback_success", callbackSuccess);
         ajouterCallbackHttps(body, "callback_cancel", callbackCancel);
         if (telephone == null || telephone.isBlank())
