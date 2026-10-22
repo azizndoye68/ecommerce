@@ -283,9 +283,10 @@
     border-radius: 11px;
   }
   .site-header nav {
-    order: 3;
-    width: 100%;
-    overflow: auto;
+    order: 0;
+    width: auto;
+    flex: 0 0 auto;
+    overflow: visible;
     scrollbar-width: none;
   }
   .site-header nav::-webkit-scrollbar {
@@ -295,7 +296,12 @@
     flex-shrink: 0;
   }
   .header-actions {
+    order: 1;
+    width: 100%;
+    flex: 1 0 100%;
+    justify-content: flex-end;
     gap: 0.2rem;
+    margin-left: 0;
   }
   .header-actions > a {
     padding: 0.5rem;
