@@ -1,6 +1,7 @@
 package sn.aziz.ecommerce.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,6 +22,7 @@ import java.util.Locale;
 import java.util.Set;
 
 @Service
+@Slf4j
 public class ImageProduitService {
     private static final long TAILLE_MAX = 5L * 1024 * 1024;
     private static final Set<String> TYPES_AUTORISES = Set.of("image/png", "image/jpeg", "image/webp", "image/gif");
@@ -81,7 +84,14 @@ public class ImageProduitService {
             return url.asText();
         } catch (ResponseStatusException exception) {
             throw exception;
+        } catch (RestClientResponseException exception) {
+            String details = exception.getResponseBodyAsString();
+            if (details.length() > 300) details = details.substring(0, 300);
+            log.warn("Cloudinary a refusé l'envoi (HTTP {}). Réponse: {}", exception.getStatusCode().value(), details);
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "Cloudinary a refusé l’image (HTTP " + exception.getStatusCode().value() + "). Vérifiez le nom Cloud, la clé API et le secret API dans Render.");
         } catch (Exception exception) {
+            log.error("Erreur technique lors de l'envoi d'une image vers Cloudinary", exception);
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                     "L'envoi vers Cloudinary a échoué. Vérifiez ses identifiants et réessayez.");
         }
