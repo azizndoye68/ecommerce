@@ -40,6 +40,8 @@ public class AdministrationServiceImpl implements AdministrationService {
     public UtilisateurDTO modifierStatut(String acteurEmail, Long id, StatutUtilisateurRequest request) {
         Utilisateur cible = utilisateurRepository.findById(id).orElseThrow(() -> new RessourceNonTrouveeException("Utilisateur introuvable"));
         Utilisateur acteur = acteur(acteurEmail);
+        if (acteur.getId().equals(cible.getId()) && cible.getRole() == Role.SUPER_ADMIN && !request.getActif())
+            throw new IllegalArgumentException("Un Super Admin ne peut pas désactiver son propre compte");
         if (cible.getRole() == Role.SUPER_ADMIN && !request.getActif() && utilisateurRepository.countByRole(Role.SUPER_ADMIN) <= 1)
             throw new IllegalArgumentException("Le dernier SUPER_ADMIN ne peut pas être désactivé");
         cible.setActif(request.getActif());

@@ -105,6 +105,15 @@ export class AdminPage implements OnInit {
       }
     });
   }
+  estSonPropreCompteSuperAdmin(admin: Utilisateur) {
+    if (admin.role !== 'SUPER_ADMIN') return false;
+    try {
+      const utilisateurConnecte = JSON.parse(localStorage.getItem('utilisateur') ?? '{}') as { email?: string };
+      return utilisateurConnecte.email?.toLowerCase() === admin.email.toLowerCase();
+    } catch {
+      return false;
+    }
+  }
   private produitVide(): ProduitFormulaire { return { nom: '', description: '', prix: 0, quantiteStock: 0, imageUrl: '', categorieId: undefined }; }
   private notifier(message: string) { this.erreur.set(''); this.succes.set(message); }
 }

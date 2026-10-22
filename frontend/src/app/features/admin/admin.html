@@ -215,8 +215,11 @@
               <strong>{{ admin.prenom }} {{ admin.nom }}</strong>
               <p>{{ admin.email }} · {{ admin.role }}</p>
               <span class="account-status" [class.inactive]="!admin.actif">{{ admin.actif ? 'Compte actif' : 'Compte désactivé' }}</span>
+              @if (estSonPropreCompteSuperAdmin(admin)) {
+                <small class="account-protection">Vous ne pouvez pas désactiver votre propre compte Super Admin.</small>
+              }
             </div>
-            <button class="account-toggle" [class.deactivate]="admin.actif" [disabled]="statutAdminEnCours() === admin.id" (click)="changerStatutAdmin(admin, !admin.actif)">
+            <button class="account-toggle" [class.deactivate]="admin.actif" [disabled]="statutAdminEnCours() === admin.id || (estSonPropreCompteSuperAdmin(admin) && admin.actif)" (click)="changerStatutAdmin(admin, !admin.actif)">
               {{ statutAdminEnCours() === admin.id ? 'Mise à jour…' : admin.actif ? 'Désactiver' : 'Activer' }}
             </button>
           </div>

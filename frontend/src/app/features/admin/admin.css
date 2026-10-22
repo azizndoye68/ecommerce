@@ -189,6 +189,7 @@ small {
 }
 .account-status { display: inline-flex; margin-top: .45rem; border-radius: 999px; padding: .25rem .55rem; background: #e8f5ec; color: #246b43; font-size: .68rem; font-weight: 800; }
 .account-status.inactive { background: #fff0ee; color: #b54747; }
+.account-protection { color: var(--muted); font-size: .72rem; }
 .account-toggle { flex: 0 0 auto; border: 1px solid #cfe2d4; border-radius: .65rem; padding: .6rem .85rem; background: #edf6ef; color: #176d4e; font: inherit; font-size: .78rem; font-weight: 800; cursor: pointer; }
 .account-toggle.deactivate { border-color: #f0d7d4; background: #fff4f2; color: #ad3f3f; }
 .account-toggle:disabled { opacity: .6; cursor: wait; }
