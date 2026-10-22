@@ -439,8 +439,9 @@
 }
 @media (min-width: 721px) {
   .description {
-    height: calc(1.55em * 2);
-    -webkit-line-clamp: 2;
+    height: calc(1.55em * 3);
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
   }
 }
 .product-footer {
