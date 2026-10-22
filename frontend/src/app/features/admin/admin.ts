@@ -9,6 +9,7 @@ import { Utilisateur } from '../../core/models/utilisateur.model';
 import { PrixCfaPipe } from '../../shared/pipes/prix-cfa.pipe';
 
 type Onglet = 'produits' | 'categories' | 'commandes' | 'administrateurs';
+type FiltreCommande = 'TOUTES' | StatutCommande;
 type ProduitFormulaire = Omit<Produit, 'id' | 'categorieNom'>;
 
 @Component({ selector: 'app-admin', imports: [FormsModule, PrixCfaPipe, DatePipe], templateUrl: './admin.html', styleUrl: './admin.css' })
@@ -22,6 +23,7 @@ export class AdminPage implements OnInit {
   categorie = { nom: '', description: '' };
   nouvelAdmin: CreerAdministrateurRequest = { nom: '', prenom: '', email: '', motDePasse: '', telephone: '', adresse: '' };
   readonly statutEnCours = signal<number | null>(null);
+  readonly filtreCommande = signal<FiltreCommande>('TOUTES');
   readonly televersementEnCours = signal(false);
   readonly apercuImage = signal('');
 
@@ -77,6 +79,7 @@ export class AdminPage implements OnInit {
   libelleStatut(statut: string) { return ({ EN_ATTENTE_PAIEMENT: 'En attente de paiement', PAYEE: 'Payée', EN_PREPARATION: 'En préparation', EXPEDIEE: 'Expédiée', LIVREE: 'Livrée', ANNULEE: 'Annulée' } as Record<string, string>)[statut] ?? statut; }
   prochaineEtape(statut: StatutCommande): StatutCommande | null { return ({ PAYEE: 'EN_PREPARATION', EN_PREPARATION: 'EXPEDIEE', EXPEDIEE: 'LIVREE' } as Partial<Record<StatutCommande, StatutCommande>>)[statut] ?? null; }
   nombreStatut(statut: StatutCommande) { return this.commandes().filter((commande) => commande.statut === statut).length; }
+  commandesFiltrees() { const filtre = this.filtreCommande(); return filtre === 'TOUTES' ? this.commandes() : this.commandes().filter((commande) => commande.statut === filtre); }
   changerStatut(commande: Commande, statut: StatutCommande) {
     this.statutEnCours.set(commande.id); this.erreur.set('');
     this.admin.changerStatutCommande(commande.id, statut).subscribe({

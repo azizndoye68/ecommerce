@@ -137,11 +137,13 @@
     <div class="table-card">
       <div class="orders-heading"><div><h2>Suivi des commandes</h2><p>Les paiements sont confirmés automatiquement. Gérez ensuite la préparation et la livraison.</p></div><button class="refresh-button" (click)="chargerCommandes()">Actualiser</button></div>
       <div class="order-summary">
-        <div><strong>{{ nombreStatut('EN_ATTENTE_PAIEMENT') }}</strong><span>En attente</span></div>
-        <div><strong>{{ nombreStatut('PAYEE') }}</strong><span>À traiter</span></div>
-        <div><strong>{{ nombreStatut('EN_PREPARATION') }}</strong><span>En préparation</span></div>
-        <div><strong>{{ nombreStatut('EXPEDIEE') }}</strong><span>Expédiées</span></div>
-        <div><strong>{{ nombreStatut('LIVREE') }}</strong><span>Livrées</span></div>
+        <button class="summary-filter" [class.selected]="filtreCommande() === 'TOUTES'" [attr.aria-pressed]="filtreCommande() === 'TOUTES'" (click)="filtreCommande.set('TOUTES')"><strong>{{ commandes().length }}</strong><span>Toutes les commandes</span></button>
+        <button class="summary-filter" [class.selected]="filtreCommande() === 'EN_ATTENTE_PAIEMENT'" [attr.aria-pressed]="filtreCommande() === 'EN_ATTENTE_PAIEMENT'" (click)="filtreCommande.set('EN_ATTENTE_PAIEMENT')"><strong>{{ nombreStatut('EN_ATTENTE_PAIEMENT') }}</strong><span>En attente</span></button>
+        <button class="summary-filter" [class.selected]="filtreCommande() === 'PAYEE'" [attr.aria-pressed]="filtreCommande() === 'PAYEE'" (click)="filtreCommande.set('PAYEE')"><strong>{{ nombreStatut('PAYEE') }}</strong><span>À traiter</span></button>
+        <button class="summary-filter" [class.selected]="filtreCommande() === 'EN_PREPARATION'" [attr.aria-pressed]="filtreCommande() === 'EN_PREPARATION'" (click)="filtreCommande.set('EN_PREPARATION')"><strong>{{ nombreStatut('EN_PREPARATION') }}</strong><span>En préparation</span></button>
+        <button class="summary-filter" [class.selected]="filtreCommande() === 'EXPEDIEE'" [attr.aria-pressed]="filtreCommande() === 'EXPEDIEE'" (click)="filtreCommande.set('EXPEDIEE')"><strong>{{ nombreStatut('EXPEDIEE') }}</strong><span>Expédiées</span></button>
+        <button class="summary-filter" [class.selected]="filtreCommande() === 'LIVREE'" [attr.aria-pressed]="filtreCommande() === 'LIVREE'" (click)="filtreCommande.set('LIVREE')"><strong>{{ nombreStatut('LIVREE') }}</strong><span>Livrées</span></button>
+        <button class="summary-filter" [class.selected]="filtreCommande() === 'ANNULEE'" [attr.aria-pressed]="filtreCommande() === 'ANNULEE'" (click)="filtreCommande.set('ANNULEE')"><strong>{{ nombreStatut('ANNULEE') }}</strong><span>Annulées</span></button>
       </div>
       <table>
         <thead>
@@ -155,10 +157,10 @@
           </tr>
         </thead>
         <tbody>
-          @for (commande of commandes(); track commande.id) {
+          @for (commande of commandesFiltrees(); track commande.id) {
             <tr>
               <td>
-                #{{ commande.id }}<small>{{ commande.creeLe | date: 'dd/MM/yyyy' }}</small>
+                #{{ commande.id }}<small>{{ commande.creeLe | date: 'dd/MM/yyyy' }}</small><small class="order-time">{{ commande.creeLe | date: 'HH:mm' }}</small>
               </td>
               <td>
                 {{ commande.destinataireLivraison }}<small>{{ commande.telephoneLivraison }}</small><small>{{ commande.adresseLivraison }}, {{ commande.villeLivraison }}</small>
@@ -176,6 +178,8 @@
                 }
               </td>
             </tr>
+          } @empty {
+            <tr><td class="empty-orders" colspan="6">Aucune commande dans cette catégorie.</td></tr>
           }
         </tbody>
       </table>
