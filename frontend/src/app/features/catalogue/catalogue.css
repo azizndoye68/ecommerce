@@ -426,6 +426,8 @@
 }
 .description {
   display: -webkit-box;
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   margin: 0;
   color: var(--muted);
@@ -434,6 +436,12 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+@media (min-width: 721px) {
+  .description {
+    height: calc(1.55em * 2);
+    -webkit-line-clamp: 2;
+  }
 }
 .product-footer {
   display: flex;
