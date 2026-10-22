@@ -1,6 +1,7 @@
 package sn.aziz.ecommerce.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.aziz.ecommerce.dto.*;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class AdministrationServiceImpl implements AdministrationService {
     private final UtilisateurRepository utilisateurRepository;
@@ -42,7 +44,10 @@ public class AdministrationServiceImpl implements AdministrationService {
             throw new IllegalArgumentException("Le dernier SUPER_ADMIN ne peut pas être désactivé");
         cible.setActif(request.getActif());
         auditService.journaliser(acteur.getId(), request.getActif() ? "ACTIVATION_UTILISATEUR" : "DESACTIVATION_UTILISATEUR", "utilisateur:" + cible.getId());
-        return utilisateurMapper.toDTO(utilisateurRepository.save(cible));
+        Utilisateur utilisateurMisAJour = utilisateurRepository.save(cible);
+        log.info("Statut du compte modifié: utilisateurId={}, actif={}, acteurId={}",
+                utilisateurMisAJour.getId(), utilisateurMisAJour.isActif(), acteur.getId());
+        return utilisateurMapper.toDTO(utilisateurMisAJour);
     }
 
     @Override
