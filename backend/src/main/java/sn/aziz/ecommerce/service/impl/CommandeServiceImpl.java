@@ -86,7 +86,7 @@ public class CommandeServiceImpl implements CommandeService {
     public void confirmerPaiementUnitech(String referencePaiement, BigDecimal montant, ModePaiement modePaiement) {
         Commande commande = commandeRepository.findByReferencePaiement(referencePaiement)
                 .orElseThrow(() -> new RessourceNonTrouveeException("Commande introuvable"));
-        if (commande.getModePaiement() != modePaiement)
+        if (modePaiement != null && commande.getModePaiement() != modePaiement)
             throw new IllegalArgumentException("Le moyen de paiement ne correspond pas à la commande");
         if (montant == null || commande.getTotal().setScale(0, java.math.RoundingMode.HALF_UP).compareTo(montant) != 0)
             throw new IllegalArgumentException("Le montant du webhook ne correspond pas à la commande");

@@ -45,8 +45,10 @@ public class WebhookPaiementController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payload UniTech Pay invalide");
         }
 
-        log.info("Notification UniTech reçue (event={}, status={}, method={})",
-                texte(payload, "event"), texte(payload, "status"), texte(payload, "method"));
+        String event = texte(payload, "event");
+        String status = texte(payload, "status");
+        String method = premiereValeur(payload, "method", "payment_method", "source", "channel", "operator");
+        log.info("Notification UniTech reçue (event={}, status={}, method={})", event, status, method);
 
         try {
             verifierSignature(rawBody, payload, headerSignature);
@@ -54,27 +56,35 @@ public class WebhookPaiementController {
             log.warn("Webhook UniTech Pay refusé: {}", ex.getReason());
             throw ex;
         }
-        String event = texte(payload, "event");
-        if ("payment_failed".equals(event) || "payment_expired".equals(event)) {
+        if ("payment_failed".equalsIgnoreCase(event) || "payment_expired".equalsIgnoreCase(event)) {
             log.info("Webhook UniTech Pay reçu: événement {}", event);
             return ResponseEntity.noContent().build();
         }
-        if (!"payment_completed".equals(event) || !"completed".equals(texte(payload, "status")))
+        boolean evenementPaiement = "payment_completed".equalsIgnoreCase(event)
+                || "payment_updated".equalsIgnoreCase(event);
+        if (!evenementPaiement || !"completed".equalsIgnoreCase(status)) {
+            log.warn("Webhook UniTech Pay ignoré: événement/statut non final (event={}, status={})", event, status);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Événement de paiement UniTech Pay non reconnu");
+        }
 
         String reference = texte(payload, "reference");
-        String method = texte(payload, "method");
         JsonNode amountNode = payload.get("amount");
-        if (reference == null || method == null || amountNode == null || !amountNode.isNumber())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Référence, méthode ou montant manquant");
+        if (reference == null || amountNode == null || (!amountNode.isNumber() && !amountNode.isTextual()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Référence ou montant manquant/invalide");
 
-        ModePaiement mode = switch (method.toLowerCase()) {
-            case "wave" -> ModePaiement.WAVE;
-            case "orange", "orange_money", "orange_om", "orange_maxit" -> ModePaiement.ORANGE_MONEY;
-            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Moyen de paiement UniTech Pay inconnu");
-        };
+        BigDecimal montant;
         try {
-            commandeService.confirmerPaiementUnitech(reference, amountNode.decimalValue(), mode);
+            montant = amountNode.isNumber() ? amountNode.decimalValue() : new BigDecimal(amountNode.asText());
+        } catch (NumberFormatException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Montant du webhook invalide");
+        }
+
+        ModePaiement mode = convertirMode(method);
+        if (method != null && mode == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Moyen de paiement UniTech Pay inconnu");
+        if (mode == null) log.info("Méthode absente du webhook; vérification avec le moyen enregistré pour la commande");
+        try {
+            commandeService.confirmerPaiementUnitech(reference, montant, mode);
         } catch (RuntimeException ex) {
             log.warn("Webhook UniTech Pay valide mais commande non confirmée: {}", ex.getMessage());
             throw ex;
@@ -118,5 +128,22 @@ public class WebhookPaiementController {
     private String texte(JsonNode node, String field) {
         JsonNode value = node == null ? null : node.get(field);
         return value == null || value.isNull() ? null : value.asText();
+    }
+
+    private String premiereValeur(JsonNode node, String... fields) {
+        for (String field : fields) {
+            String value = texte(node, field);
+            if (value != null && !value.isBlank()) return value;
+        }
+        return null;
+    }
+
+    private ModePaiement convertirMode(String method) {
+        if (method == null || method.isBlank()) return null;
+        return switch (method.trim().toLowerCase().replace(' ', '_')) {
+            case "wave", "wave_money" -> ModePaiement.WAVE;
+            case "orange", "orange_money", "orange_om", "orange_maxit" -> ModePaiement.ORANGE_MONEY;
+            default -> null;
+        };
     }
 }
