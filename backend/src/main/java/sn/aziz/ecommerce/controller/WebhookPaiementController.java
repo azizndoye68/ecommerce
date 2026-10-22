@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.Iterator;
+import java.util.List;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
@@ -69,8 +72,11 @@ public class WebhookPaiementController {
 
         String reference = texte(payload, "reference");
         JsonNode amountNode = payload.get("amount");
-        if (reference == null || amountNode == null || (!amountNode.isNumber() && !amountNode.isTextual()))
+        if (reference == null || amountNode == null || (!amountNode.isNumber() && !amountNode.isTextual())) {
+            log.warn("Webhook UniTech Pay incomplet: referencePrésente={}, amountPrésent={}, champs={}",
+                    reference != null, amountNode != null, nomsChamps(payload));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Référence ou montant manquant/invalide");
+        }
 
         BigDecimal montant;
         try {
@@ -136,6 +142,16 @@ public class WebhookPaiementController {
             if (value != null && !value.isBlank()) return value;
         }
         return null;
+    }
+
+    /** Journalise uniquement la structure du webhook, jamais ses valeurs ni sa signature. */
+    private List<String> nomsChamps(JsonNode node) {
+        List<String> noms = new ArrayList<>();
+        if (node != null && node.isObject()) {
+            Iterator<String> champs = node.fieldNames();
+            champs.forEachRemaining(noms::add);
+        }
+        return noms;
     }
 
     private ModePaiement convertirMode(String method) {
