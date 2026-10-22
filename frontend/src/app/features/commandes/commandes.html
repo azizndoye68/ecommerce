@@ -1,7 +1,9 @@
 <section class="page">
-  <p class="eyebrow">VOTRE ESPACE CLIENT</p>
-  <h1 class="page-title">Mes commandes</h1>
-  <p class="intro">Retrouvez vos achats, suivez leur préparation et consultez les informations de livraison.</p>
+  <header class="orders-heading">
+    <p class="eyebrow">VOTRE ESPACE CLIENT</p>
+    <h1 class="page-title">Mes commandes</h1>
+    <p class="intro">Retrouvez vos achats, suivez leur préparation et consultez les informations de livraison.</p>
+  </header>
   @if (messagePaiement()) {
     <p class="alert" role="status" aria-live="polite">{{ messagePaiement() }}</p>
   }
