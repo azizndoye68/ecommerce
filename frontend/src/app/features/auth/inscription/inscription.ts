@@ -23,7 +23,7 @@ export class Inscription {
     nom: ['', Validators.required],
     prenom: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    motDePasse: ['', [Validators.required, Validators.minLength(12)]],
+    motDePasse: ['', [Validators.required, Validators.minLength(6)]],
     telephone: [''],
     adresse: ['']
   });

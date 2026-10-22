@@ -54,10 +54,10 @@
           type="password"
           formControlName="motDePasse"
           autocomplete="new-password"
-          placeholder="12 caractères minimum"
+          placeholder="6 caractères minimum"
         />
         @if (formulaire.get('motDePasse')?.invalid && formulaire.get('motDePasse')?.touched) {
-          <p class="error">Choisissez un mot de passe d’au moins 12 caractères.</p>
+          <p class="error">Choisissez un mot de passe d’au moins 6 caractères.</p>
         }
       </div>
       <div class="name-fields">
