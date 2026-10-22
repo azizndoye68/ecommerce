@@ -70,7 +70,7 @@ public class WebhookPaiementController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Événement de paiement UniTech Pay non reconnu");
         }
 
-        String reference = texte(payload, "reference");
+        String reference = premiereValeur(payload, "reference", "transaction_reference");
         JsonNode amountNode = payload.get("amount");
         if (reference == null || amountNode == null || (!amountNode.isNumber() && !amountNode.isTextual())) {
             log.warn("Webhook UniTech Pay incomplet: referencePrésente={}, amountPrésent={}, champs={}",
@@ -108,7 +108,7 @@ public class WebhookPaiementController {
         if (signature == null || signature.isBlank()) {
             signature = texte(payload, "signature");
             String event = texte(payload, "event");
-            String reference = texte(payload, "reference");
+            String reference = premiereValeur(payload, "reference", "transaction_reference");
             String amount = texte(payload, "amount");
             String status = texte(payload, "status");
             String signedAt = texte(payload, "signed_at");
