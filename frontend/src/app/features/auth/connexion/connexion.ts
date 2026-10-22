@@ -18,6 +18,7 @@ export class Connexion {
 
   chargement$ = this.store.select(selectChargement);
   erreur$ = this.store.select(selectErreur);
+  motDePasseVisible = false;
 
   formulaire = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
