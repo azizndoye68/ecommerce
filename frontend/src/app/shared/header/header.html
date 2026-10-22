@@ -7,13 +7,6 @@
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
       >Boutique</a
     >
-    @if (utilisateur$ | async; as utilisateur) {
-      <a routerLink="/commandes" routerLinkActive="active">Mes commandes</a
-      ><a routerLink="/profil" routerLinkActive="active">Mon profil</a>
-      @if (utilisateur.role === 'ADMIN' || utilisateur.role === 'SUPER_ADMIN') {
-        <a routerLink="/admin" routerLinkActive="active">Administration</a>
-      }
-    }
   </nav>
   <div class="header-actions">
     <a class="cart-link" routerLink="/panier" aria-label="Voir le panier"
@@ -31,8 +24,47 @@
       Panier <b>{{ nombreArticles() }}</b></a
     >
     @if (utilisateur$ | async; as utilisateur) {
-      <span class="user-name">Bonjour, {{ utilisateur.prenom }}</span>
-      <button type="button" class="link-button" (click)="deconnecter()">Déconnexion</button>
+      <details class="account-menu" #accountMenu>
+        <summary aria-label="Ouvrir le menu du compte">
+          <span class="account-avatar" aria-hidden="true"
+            >{{ utilisateur.prenom.charAt(0) }}{{ utilisateur.nom.charAt(0) }}</span
+          >
+          <span class="account-greeting">Bonjour, {{ utilisateur.prenom }}</span>
+          <svg class="account-chevron" aria-hidden="true" viewBox="0 0 20 20" fill="none">
+            <path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </summary>
+        <div class="account-dropdown">
+          <div class="account-dropdown-heading">
+            <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>
+            <span>{{ utilisateur.email }}</span>
+          </div>
+          <a routerLink="/profil" (click)="fermerMenu(accountMenu)">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.7"/><path d="M5 20c.7-3.2 3.1-5 7-5s6.3 1.8 7 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <span>Mon profil<small>Informations et mot de passe</small></span>
+          </a>
+          <a routerLink="/commandes" (click)="fermerMenu(accountMenu)">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4 8.5 12 4l8 4.5v10A1.5 1.5 0 0 1 18.5 20h-13A1.5 1.5 0 0 1 4 18.5v-10Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M4.5 9 12 13l7.5-4M12 13v7" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+            <span>Mes commandes<small>Suivre mes achats</small></span>
+          </a>
+          <a routerLink="/panier" (click)="fermerMenu(accountMenu)">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 1.9-1.4L21 8H6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.2" fill="currentColor"/><circle cx="18" cy="20" r="1.2" fill="currentColor"/></svg>
+            <span>Mon panier<small>{{ nombreArticles() }} article(s)</small></span>
+          </a>
+          @if (utilisateur.role === 'ADMIN' || utilisateur.role === 'SUPER_ADMIN') {
+            <a routerLink="/admin" (click)="fermerMenu(accountMenu)">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6v5c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6l8-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Administration<small>Gérer la boutique</small></span>
+            </a>
+          }
+          <div class="account-dropdown-footer">
+            <button type="button" (click)="deconnecter(accountMenu)">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10M14 16l4-4-4-4m4 4H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </details>
     } @else {
       <a routerLink="/connexion">Connexion</a
       ><a class="button small" routerLink="/inscription">Créer un compte</a>

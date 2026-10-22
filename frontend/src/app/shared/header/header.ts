@@ -31,5 +31,9 @@ export class Header implements OnInit {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe();
   }
-  deconnecter() { this.store.dispatch(AuthActions.deconnecter()); }
+  fermerMenu(menu: HTMLDetailsElement) { menu.open = false; }
+  deconnecter(menu: HTMLDetailsElement) {
+    this.fermerMenu(menu);
+    this.store.dispatch(AuthActions.deconnecter());
+  }
 }
