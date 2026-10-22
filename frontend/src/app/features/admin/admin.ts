@@ -23,6 +23,7 @@ export class AdminPage implements OnInit {
   categorie = { nom: '', description: '' };
   nouvelAdmin: CreerAdministrateurRequest = { nom: '', prenom: '', email: '', motDePasse: '', telephone: '', adresse: '' };
   readonly statutEnCours = signal<number | null>(null);
+  readonly statutAdminEnCours = signal<number | null>(null);
   readonly filtreCommande = signal<FiltreCommande>('TOUTES');
   readonly televersementEnCours = signal(false);
   readonly apercuImage = signal('');
@@ -88,7 +89,22 @@ export class AdminPage implements OnInit {
     });
   }
   creerAdministrateur() { if (this.nouvelAdmin.motDePasse.length < 12) { this.erreur.set('Le mot de passe doit comporter au moins 12 caractères.'); return; } this.admin.creerAdministrateur(this.nouvelAdmin).subscribe({ next: () => { this.notifier('Administrateur créé.'); this.nouvelAdmin = { nom: '', prenom: '', email: '', motDePasse: '', telephone: '', adresse: '' }; this.chargerAdministrateurs(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Création impossible.') }); }
-  changerStatutAdmin(admin: Utilisateur, actif: boolean) { if (!admin.id) return; this.admin.changerStatutAdministrateur(admin.id, actif).subscribe({ next: () => { this.notifier('Statut mis à jour.'); this.chargerAdministrateurs(); }, error: (e) => this.erreur.set(e.error?.message ?? 'Mise à jour impossible.') }); }
+  changerStatutAdmin(admin: Utilisateur, actif: boolean) {
+    if (!admin.id || this.statutAdminEnCours() !== null) return;
+    this.statutAdminEnCours.set(admin.id);
+    this.erreur.set(''); this.succes.set('');
+    this.admin.changerStatutAdministrateur(admin.id, actif).subscribe({
+      next: (misAJour) => {
+        this.administrateurs.update((items) => items.map((item) => item.id === misAJour.id ? misAJour : item));
+        this.statutAdminEnCours.set(null);
+        this.notifier(`${misAJour.prenom} ${misAJour.nom} : compte ${actif ? 'activé' : 'désactivé'}.`);
+      },
+      error: (e) => {
+        this.statutAdminEnCours.set(null);
+        this.erreur.set(e.error?.message ?? `Impossible ${actif ? 'd’activer' : 'de désactiver'} ce compte.`);
+      }
+    });
+  }
   private produitVide(): ProduitFormulaire { return { nom: '', description: '', prix: 0, quantiteStock: 0, imageUrl: '', categorieId: undefined }; }
   private notifier(message: string) { this.erreur.set(''); this.succes.set(message); }
 }

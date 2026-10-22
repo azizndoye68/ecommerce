@@ -214,10 +214,11 @@
             <div>
               <strong>{{ admin.prenom }} {{ admin.nom }}</strong>
               <p>{{ admin.email }} · {{ admin.role }}</p>
+              <span class="account-status" [class.inactive]="!admin.actif">{{ admin.actif ? 'Compte actif' : 'Compte désactivé' }}</span>
             </div>
-            <button class="button secondary" (click)="changerStatutAdmin(admin, true)">
-              Activer</button
-            ><button class="danger" (click)="changerStatutAdmin(admin, false)">Désactiver</button>
+            <button class="account-toggle" [class.deactivate]="admin.actif" [disabled]="statutAdminEnCours() === admin.id" (click)="changerStatutAdmin(admin, !admin.actif)">
+              {{ statutAdminEnCours() === admin.id ? 'Mise à jour…' : admin.actif ? 'Désactiver' : 'Activer' }}
+            </button>
           </div>
         }
       </div>
