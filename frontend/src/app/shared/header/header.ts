@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnInit, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
@@ -32,6 +32,15 @@ export class Header implements OnInit {
     ).subscribe();
   }
   fermerMenu(menu: HTMLDetailsElement) { menu.open = false; }
+  @HostListener('document:click', ['$event'])
+  fermerMenuSiClicExterieur(event: MouseEvent) {
+    const cible = event.target;
+    if (!(cible instanceof Node)) return;
+    const menu = cible instanceof Element ? cible.closest('details.account-menu') : null;
+    if (!menu) {
+      document.querySelector<HTMLDetailsElement>('details.account-menu[open]')?.removeAttribute('open');
+    }
+  }
   deconnecter(menu: HTMLDetailsElement) {
     this.fermerMenu(menu);
     this.store.dispatch(AuthActions.deconnecter());
