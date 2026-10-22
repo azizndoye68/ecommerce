@@ -23,11 +23,13 @@
         <div class="fields">
           <div class="field">
             <label for="prenom">Prénom</label
-            ><input id="prenom" formControlName="prenom" autocomplete="given-name" />
+            ><input id="prenom" formControlName="prenom" (input)="filtrerNom('prenom', $event)" autocomplete="given-name" />
+            @if (informationsForm.controls.prenom.hasError('pattern') && informationsForm.controls.prenom.touched) { <small class="field-error">Utilisez des lettres, sans chiffres.</small> }
           </div>
           <div class="field">
             <label for="nom">Nom</label
-            ><input id="nom" formControlName="nom" autocomplete="family-name" />
+            ><input id="nom" formControlName="nom" (input)="filtrerNom('nom', $event)" autocomplete="family-name" />
+            @if (informationsForm.controls.nom.hasError('pattern') && informationsForm.controls.nom.touched) { <small class="field-error">Utilisez des lettres, sans chiffres.</small> }
           </div>
           <div class="field full">
             <label for="email">Adresse e-mail</label
@@ -37,7 +39,8 @@
           </div>
           <div class="field full">
             <label for="telephone">Téléphone</label
-            ><input id="telephone" type="tel" formControlName="telephone" autocomplete="tel" />
+            ><input id="telephone" type="tel" formControlName="telephone" (input)="filtrerTelephone($event)" autocomplete="tel" inputmode="numeric" maxlength="9" />
+            @if (informationsForm.controls.telephone.hasError('pattern') && informationsForm.controls.telephone.touched) { <small class="field-error">Saisissez exactement 9 chiffres.</small> }
           </div>
           <div class="field full">
             <label for="adresse">Adresse</label

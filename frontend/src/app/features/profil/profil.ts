@@ -24,11 +24,29 @@ export class Profil implements OnInit {
   readonly profil = signal<Utilisateur | null>(null);
 
   readonly informationsForm = this.fb.nonNullable.group({
-    nom: ['', Validators.required],
-    prenom: ['', Validators.required],
-    telephone: [''],
+    nom: ['', [Validators.required, Validators.pattern(/^[\p{L}\p{M}]+(?:[ '\u2019-][\p{L}\p{M}]+)*$/u)]],
+    prenom: ['', [Validators.required, Validators.pattern(/^[\p{L}\p{M}]+(?:[ '\u2019-][\p{L}\p{M}]+)*$/u)]],
+    telephone: ['', Validators.pattern(/^(?:[0-9]{9})?$/)],
     adresse: [''],
   });
+
+  filtrerNom(champ: 'nom' | 'prenom', event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const valeur = input.value.replace(/[0-9]/g, '');
+    if (valeur !== input.value) {
+      input.value = valeur;
+      this.informationsForm.controls[champ].setValue(valeur);
+    }
+  }
+
+  filtrerTelephone(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const valeur = input.value.replace(/\D/g, '').slice(0, 9);
+    if (valeur !== input.value) {
+      input.value = valeur;
+      this.informationsForm.controls.telephone.setValue(valeur);
+    }
+  }
   readonly motDePasseForm = this.fb.nonNullable.group({
     motDePasseActuel: ['', Validators.required],
     nouveauMotDePasse: ['', [Validators.required, Validators.minLength(6)]],
