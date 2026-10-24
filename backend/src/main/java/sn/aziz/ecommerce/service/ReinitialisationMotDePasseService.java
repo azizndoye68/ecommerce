@@ -91,9 +91,9 @@ public class ReinitialisationMotDePasseService {
             MimeMessageHelper helper = new MimeMessageHelper(message, StandardCharsets.UTF_8.name());
             helper.setTo(utilisateur.getEmail());
             if (expediteur != null && !expediteur.isBlank()) helper.setFrom(expediteur);
-            helper.setSubject("Réinitialisation de votre mot de passe SunuMarket");
+            helper.setSubject("Réinitialisation de votre mot de passe DIAAYMA");
             helper.setText("<p>Bonjour " + echapper(utilisateur.getPrenom()) + ",</p>"
-                    + "<p>Une demande de réinitialisation du mot de passe de votre compte SunuMarket a été reçue.</p>"
+                    + "<p>Une demande de réinitialisation du mot de passe de votre compte DIAAYMA a été reçue.</p>"
                     + "<p><a href=\"" + lien + "\">Choisir un nouveau mot de passe</a></p>"
                     + "<p>Ce lien expire dans 30 minutes et ne peut être utilisé qu'une seule fois. "
                     + "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.</p>", true);

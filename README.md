@@ -1,6 +1,6 @@
-# SunuMarket — boutique en ligne
+# DIAAYMA — boutique en ligne
 
-SunuMarket est une plateforme e-commerce composée d’un frontend Angular et d’une API Java Spring Boot. Elle permet de consulter un catalogue, créer un compte, gérer un panier, passer des commandes et suivre leur paiement et leur livraison. Les administrateurs gèrent les produits, les catégories, les commandes et les comptes administrateurs.
+DIAAYMA est une plateforme e-commerce composée d’un frontend Angular et d’une API Java Spring Boot. Elle permet de consulter un catalogue, créer un compte, gérer un panier, passer des commandes et suivre leur paiement et leur livraison. Les administrateurs gèrent les produits, les catégories, les commandes et les comptes administrateurs.
 
 La boutique est hébergée avec le frontend sur Vercel et le backend sur Render. PostgreSQL conserve les données, Cloudinary héberge les photos de produits et UniTech Pay fournit les paiements Wave et Orange Money.
 
