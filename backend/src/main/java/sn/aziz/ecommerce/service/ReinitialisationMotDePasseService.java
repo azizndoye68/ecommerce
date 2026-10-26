@@ -3,10 +3,13 @@ package sn.aziz.ecommerce.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,11 +28,13 @@ import java.util.Base64;
 import java.util.HexFormat;
 import java.util.Locale;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReinitialisationMotDePasseService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final String MESSAGE_CONFIRMATION = "Si un compte correspond à cette adresse, un lien de réinitialisation lui a été envoyé.";
+    private static final String MESSAGE_LIEN_INVALIDE = "Ce lien est invalide ou a expiré. Demande un nouveau lien.";
 
     private final UtilisateurRepository utilisateurRepository;
     private final JetonReinitialisationRepository jetonRepository;
@@ -54,10 +59,10 @@ public class ReinitialisationMotDePasseService {
     public void reinitialiser(String jeton, String nouveauMotDePasse) {
         String hash = hacher(jeton);
         JetonReinitialisation demande = jetonRepository.findByJetonHash(hash)
-                .orElseThrow(() -> new IllegalArgumentException("Ce lien est invalide ou a expiré. Demande un nouveau lien."));
+                .orElseThrow(() -> new IllegalArgumentException(MESSAGE_LIEN_INVALIDE));
         if (demande.getExpireLe().isBefore(LocalDateTime.now())) {
             jetonRepository.delete(demande);
-            throw new IllegalArgumentException("Ce lien est invalide ou a expiré. Demande un nouveau lien.");
+            throw new IllegalArgumentException(MESSAGE_LIEN_INVALIDE);
         }
 
         Utilisateur utilisateur = demande.getUtilisateur();
@@ -67,7 +72,7 @@ public class ReinitialisationMotDePasseService {
         refreshTokenRepository.deleteByUtilisateurId(utilisateur.getId());
     }
 
-    @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 86400000L)
+    @Scheduled(fixedDelay = 86400000L)
     @Transactional
     public void purgerJetonsExpires() {
         jetonRepository.deleteByExpireLeBefore(LocalDateTime.now());
@@ -98,7 +103,8 @@ public class ReinitialisationMotDePasseService {
                     + "<p>Ce lien expire dans 30 minutes et ne peut être utilisé qu'une seule fois. "
                     + "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.</p>", true);
             mailSender.send(message);
-        } catch (MessagingException | org.springframework.mail.MailException exception) {
+        } catch (MessagingException | MailException exception) {
+            log.error("Échec de l'envoi de l'e-mail de réinitialisation", exception);
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "L'envoi de l'e-mail a échoué. Vérifiez la configuration SMTP du backend.");
         }
