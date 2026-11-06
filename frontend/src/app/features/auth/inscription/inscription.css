@@ -95,6 +95,8 @@
   border-radius: 11px;
   background: var(--green);
   color: white;
+  font-size: 0.68rem;
+  letter-spacing: -0.04em;
 }
 .auth-card .eyebrow {
   margin-bottom: 0.65rem;
