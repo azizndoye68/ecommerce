@@ -185,13 +185,13 @@
   background: var(--green);
   color: white;
   font-family: 'Manrope', sans-serif;
-  font-size: 1.8rem;
+  font-size: 1.1rem;
   font-weight: 800;
 }
 .bag-brand {
   margin-top: 0.65rem;
   font-family: 'Manrope', sans-serif;
-  font-size: 1rem;
+  font-size: 0.82rem;
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.04em;
